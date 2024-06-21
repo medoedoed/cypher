@@ -3,7 +3,7 @@ import picocli.CommandLine.*;
 
 import java.io.File;
 
-public class PasswordManager {
+public class PasswordManager implements Runnable {
     @Option(names = {"-v", "--verbose"}, description = "Verbose mode. Helpful for troubleshooting. " + "Multiple -v options increase the verbosity.")
     private boolean[] verbose = new boolean[0];
 
