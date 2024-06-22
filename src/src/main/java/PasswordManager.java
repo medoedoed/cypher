@@ -1,30 +1,25 @@
 import picocli.CommandLine;
 import picocli.CommandLine.*;
+import subcommands.ChangeSuperPasswordSubcommand;
+import subcommands.InitSubcommand;
 
-import java.io.File;
 
+@Command(name = "PasswordManager",
+        version = "pwm 0.1",
+        subcommands = {
+                InitSubcommand.class,
+                ChangeSuperPasswordSubcommand.class
+        },
+        mixinStandardHelpOptions = true)
 public class PasswordManager implements Runnable {
-    @Option(names = {"-v", "--verbose"}, description = "Verbose mode. Helpful for troubleshooting. " + "Multiple -v options increase the verbosity.")
-    private boolean[] verbose = new boolean[0];
 
-    @CommandLine.Option(names = {"-h", "--help"}, usageHelp = true, description = "Displays this help message and quits.")
-    private boolean helpRequested = false;
-
-    @CommandLine.Parameters(arity = "1..*", paramLabel = "FILE", description = "File(s) to process.")
-    private File[] inputFiles;
-
-    public void run() {
-        if (verbose.length > 0) {
-            System.out.println(inputFiles.length + " files to process...");
-        }
-        if (verbose.length > 1) {
-            for (File f : inputFiles) {
-                System.out.println(f.getAbsolutePath());
-            }
-        }
-    }
 
     public static void main(String[] args) {
-        new CommandLine(new PasswordManager()).execute(args);
+        int exitCode = new CommandLine(new PasswordManager()).execute(args);
+        System.exit(exitCode);
+    }
+
+    @Override
+    public void run() {
     }
 }

@@ -9,13 +9,17 @@ Password manager utility for linux
 
 1. Сохранение checksum для супер-пароля. Если в директории уже лежит пароль, выводит сообщение об ошибке.
     ```shell
-    $ pwm init 
+    $ pwm init [OPTIONS]...
     "Enter your super password:"
     > *****
     "Repeat super password:"
     > *****
     "Checksum saved."
      ```
+   Options:
+   ```shell
+   -d, --directory    Set directory to init utility.
+   ```
 2. Обновление супер-пароля.
     ```shell
     $ pwm chspw 
