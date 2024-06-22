@@ -13,9 +13,11 @@ import subcommands.InitSubcommand;
         mixinStandardHelpOptions = true)
 public class PasswordManager implements Runnable {
 
-
     public static void main(String[] args) {
-        int exitCode = new CommandLine(new PasswordManager()).execute(args);
+        String argsTest = "init";
+        System.out.println("______________________________________");
+        int exitCode = new CommandLine(new PasswordManager()).execute(argsTest);
+        System.out.println("______________________________________");
         System.exit(exitCode);
     }
 
