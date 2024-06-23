@@ -25,7 +25,7 @@ public class ConfigHandler {
 
     public void createStandardConfig() {
         try {
-            standartConfigString = getStandardConfig();
+//            standartConfigString = getStandardConfig();
             System.out.println(standartConfigString);
             var directory = new File(configDirectory);
             if (!directory.exists())

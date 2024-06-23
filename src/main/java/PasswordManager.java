@@ -23,7 +23,7 @@ public class PasswordManager implements Runnable {
 //        int exitCode = new CommandLine(new PasswordManager()).execute(args);
 //        System.out.println("______________________________________");
 //        System.exit(exitCode);
-        System.out.println(new ConfigHandler().getStandardConfig());
+        System.out.println("Hello world!");
     }
 
     @Override
