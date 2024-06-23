@@ -3,11 +3,11 @@ package utils;
 import java.io.Console;
 
 public class AgreementHandler {
-    public Boolean yesNoQuestion(String question) {
+    public static Boolean yesNoQuestion(String question) {
         return yesNoQuestion(question, 0);
     }
 
-    public Boolean yesNoQuestion(String question, int iteration) {
+    public static Boolean yesNoQuestion(String question, int iteration) {
         if (iteration == 3) {
             return false;
         }

@@ -1,8 +1,11 @@
-import encryption.Sha256Encryptor;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
 import subcommands.ChangeSuperPasswordSubcommand;
 import subcommands.InitSubcommand;
+import utils.ConfigHandler;
+
+import java.io.*;
+import java.util.Objects;
 
 
 @Command(name = "PasswordManager",
@@ -14,12 +17,13 @@ import subcommands.InitSubcommand;
         mixinStandardHelpOptions = true)
 public class PasswordManager implements Runnable {
 
-    public static void main(String[] args) {
-        String argsTest = "init";
-        System.out.println("______________________________________");
-        int exitCode = new CommandLine(new PasswordManager()).execute(args);
-        System.out.println("______________________________________");
-        System.exit(exitCode);
+    public static void main(String[] args) throws IOException {
+//        String argsTest = "init";
+//        System.out.println("______________________________________");
+//        int exitCode = new CommandLine(new PasswordManager()).execute(args);
+//        System.out.println("______________________________________");
+//        System.exit(exitCode);
+        System.out.println(new ConfigHandler().getStandardConfig());
     }
 
     @Override

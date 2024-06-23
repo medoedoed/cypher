@@ -2,22 +2,20 @@ package utils;
 
 import com.moandjiezana.toml.Toml;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+
 
 public class ConfigHandler {
 
-    private final String configDirectory = System.getProperty("user.home") + "/.config/pwm/";
-    private final String configPath = configDirectory + "config.toml";
+    private static final String configDirectory = System.getProperty("user.home") + "/.config/pwm/";
+    private static final String configPath = configDirectory + "config.toml";
 
-
-    private final String standartConfigString =
-            "contentFolder = \"~/.passwords/\"\n";
+    private String standartConfigString = "contentFolder = \"~/.passwords/\"" +
+            "";
     private final Toml standardConfig = new Toml().read(standartConfigString);
 
-    public Toml readConfig() {
+
+    public static Toml getConfig() {
         File configFile = new File(configPath);
         if (!configFile.exists()) return null;
         return new Toml().read(configFile);
@@ -27,6 +25,8 @@ public class ConfigHandler {
 
     public void createStandardConfig() {
         try {
+            standartConfigString = getStandardConfig();
+            System.out.println(standartConfigString);
             var directory = new File(configDirectory);
             if (!directory.exists())
                 if (!directory.mkdir())

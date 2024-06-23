@@ -15,6 +15,9 @@ public class ChangeSuperPasswordSubcommand implements Runnable {
             return;
         }
 
+        char[] oldPassword = console.readPassword("Enter your old super password: ");
+        
+
         char[] passwordArray = console.readPassword("Enter your super password: ");
         String password = new String(passwordArray);
 

@@ -2,6 +2,7 @@ package subcommands;
 
 import com.moandjiezana.toml.Toml;
 import picocli.CommandLine.*;
+import utils.AgreementHandler;
 import utils.ChecksumSaver;
 import utils.ConfigHandler;
 import utils.DirectoryHandler;
@@ -19,15 +20,15 @@ public class InitSubcommand implements Runnable {
 
     @Override
     public void run() {
-        if (configHandler.readConfig() == null)
+        if (ConfigHandler.getConfig() == null)
             configHandler.createStandardConfig();
         String contentFolder;
 
         final String checksumFilename = ".checksum";
 
-        Toml config = configHandler.readConfig();
-        System.out.println(config.getString("contentFolder"));
 
+
+        Toml config = ConfigHandler.getConfig();
 
         if (directory != null) {
             contentFolder = DirectoryHandler.getFullPath(directory);
@@ -38,8 +39,11 @@ public class InitSubcommand implements Runnable {
         var checksumPath = contentFolder + File.separator + checksumFilename;
 
         if (new File(checksumPath).exists()) {
-            System.out.println("You have already initialized the checksum. \n" +
-                    "Want to change you super password? (y/n)");
+            System.out.println("You have already initialized the checksum.");
+            if (AgreementHandler.yesNoQuestion("Want to change your super password? (y/n)")) {
+
+                new ChangeSuperPasswordSubcommand().run();
+            }
 
             return;
         }
