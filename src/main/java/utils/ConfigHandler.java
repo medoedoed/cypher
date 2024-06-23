@@ -1,8 +1,11 @@
 package utils;
 
 import com.moandjiezana.toml.Toml;
+import com.moandjiezana.toml.TomlWriter;
 
 import java.io.*;
+import java.util.Map;
+import java.util.Scanner;
 
 
 public class ConfigHandler {
@@ -10,36 +13,51 @@ public class ConfigHandler {
     private static final String configDirectory = System.getProperty("user.home") + "/.config/pwm/";
     private static final String configPath = configDirectory + "config.toml";
 
-    private String standartConfigString = "contentFolder = \"~/.passwords/\"" +
-            "";
-    private final Toml standardConfig = new Toml().read(standartConfigString);
-
+    private static final String defaultConfigString = """
+            contentFolder = "~/.passwords/"
+            """;
+    private static final Toml config = new Toml().read(defaultConfigString);
 
     public static Toml getConfig() {
         File configFile = new File(configPath);
-        if (!configFile.exists()) return null;
-        return new Toml().read(configFile);
+        Toml writtenConfig;
+        if (!configFile.exists()) {
+            return createDefaultConfig();
+        } else {
+            writtenConfig = new Toml().read(configFile);
+        }
 
-        // TODO handle params what are empty in config
+        Map<String, Object> writtenMap = writtenConfig.toMap();
+
+        try (StringReader reader = new StringReader(defaultConfigString)) {
+            Toml defaultConfig = new Toml().read(reader);
+            defaultConfig.toMap().forEach((key, value) -> {
+                if (!writtenMap.containsKey(key)) {
+                    writtenMap.put(key, value);
+                }
+            });
+        }
+        writtenConfig = new Toml().read(new TomlWriter().write(writtenMap));
+        writtenConfig.toMap().forEach((key, value) -> System.out.println(key + " +++ " + value));
+        return writtenConfig;
     }
 
-    public void createStandardConfig() {
+    public static Toml createDefaultConfig() {
         try {
-//            standartConfigString = getStandardConfig();
-            System.out.println(standartConfigString);
             var directory = new File(configDirectory);
             if (!directory.exists())
-                if (!directory.mkdir())
-                    throw new FileNotFoundException("Config directory could not be created");
+                if (!directory.mkdir()) throw new FileNotFoundException("Config directory could not be created");
 
             File file = new File(configPath);
-            if (!file.createNewFile()) return;
+            if (!file.createNewFile()) throw new FileNotFoundException("Config file could not be created");
 
             FileWriter writer = new FileWriter(file);
-            writer.write(standartConfigString);
+            writer.write(defaultConfigString);
             writer.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
+
+        return config;
     }
 }

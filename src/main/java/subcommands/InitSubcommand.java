@@ -20,17 +20,12 @@ public class InitSubcommand implements Runnable {
 
     @Override
     public void run() {
-        if (ConfigHandler.getConfig() == null)
-            configHandler.createStandardConfig();
         String contentFolder;
 
-        final String checksumFilename = ".checksum";
-
-
-
+        final String checksumFilename = "checksum";
         Toml config = ConfigHandler.getConfig();
 
-        if (directory != null) {
+        if (directory != null && !directory.isEmpty()) {
             contentFolder = DirectoryHandler.getFullPath(directory);
         } else {
             contentFolder = DirectoryHandler.getFullPath(config.getString("contentFolder"));
