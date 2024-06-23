@@ -14,8 +14,7 @@ public class ConfigHandler {
 
 
     private final String standartConfigString =
-            "[common]\n" +
-                    "contentFolder = \"$HOME/.passwords/\"\n";
+            "contentFolder = \"~/.passwords/\"\n";
     private final Toml standardConfig = new Toml().read(standartConfigString);
 
     public Toml readConfig() {

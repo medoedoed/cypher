@@ -1,3 +1,4 @@
+import encryption.Sha256Encryptor;
 import picocli.CommandLine;
 import picocli.CommandLine.*;
 import subcommands.ChangeSuperPasswordSubcommand;
@@ -16,7 +17,7 @@ public class PasswordManager implements Runnable {
     public static void main(String[] args) {
         String argsTest = "init";
         System.out.println("______________________________________");
-        int exitCode = new CommandLine(new PasswordManager()).execute(argsTest);
+        int exitCode = new CommandLine(new PasswordManager()).execute(args);
         System.out.println("______________________________________");
         System.exit(exitCode);
     }

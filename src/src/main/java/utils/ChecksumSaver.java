@@ -30,13 +30,15 @@ public class ChecksumSaver {
 
         var checksumFile = new File(checksumPath);
         if (!checksumFile.getParentFile().exists())
-            if (checksumFile.getParentFile().mkdirs())
+            if (!checksumFile.getParentFile().mkdirs())
                 System.err.println("Unable to create content folder");
 
-
         try {
+            if (!checksumFile.createNewFile()) System.err.println("Unable to create checksum file");
             var checksumWriter = new FileWriter(checksumPath);
-            checksumWriter.write(Sha256Encryptor.encrypt(password));
+            checksumWriter.write(Sha256Encryptor.encrypt(password) + "\n");
+            System.out.println(checksumPath);
+            checksumWriter.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
