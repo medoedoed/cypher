@@ -16,8 +16,6 @@ public class InitSubcommand implements Runnable {
     @Option(names = {"-d", "--directory"}, description = "Set directory to init utility.")
     private String directory;
 
-    private final ConfigHandler configHandler = new ConfigHandler();
-
     @Override
     public void run() {
         String contentFolder;
@@ -36,7 +34,6 @@ public class InitSubcommand implements Runnable {
         if (new File(checksumPath).exists()) {
             System.out.println("You have already initialized the checksum.");
             if (AgreementHandler.yesNoQuestion("Want to change your super password? (y/n)")) {
-
                 new ChangeSuperPasswordSubcommand().run();
             }
 

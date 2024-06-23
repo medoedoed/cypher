@@ -37,9 +37,7 @@ public class ConfigHandler {
                 }
             });
         }
-        writtenConfig = new Toml().read(new TomlWriter().write(writtenMap));
-        writtenConfig.toMap().forEach((key, value) -> System.out.println(key + " +++ " + value));
-        return writtenConfig;
+        return new Toml().read(new TomlWriter().write(writtenMap));
     }
 
     public static Toml createDefaultConfig() {
