@@ -9,14 +9,16 @@ import utils.readers.PasswordConsoleReader;
 import java.io.*;
 
 public class ChecksumHandler {
-
     public static Boolean checkOldPassword(String checksumPath, Boolean isVisible) {
+        var checksumFile = new File(checksumPath);
+        if (!checksumFile.exists()) {
+            System.err.println("Checksum file not found");
+            return false;
+        }
+
         ConsoleReader consoleReader;
         if (isVisible) consoleReader = new DefaultConsoleReader();
         else consoleReader = new PasswordConsoleReader();
-
-        var checksumFile = new File(checksumPath);
-        if (!checksumFile.exists()) System.err.println("Checksum file not found");
         var checksumBuilder = new StringBuilder();
 
         try (BufferedReader reader = new BufferedReader(new FileReader(checksumFile))) {
@@ -29,7 +31,7 @@ public class ChecksumHandler {
             return false;
         }
 
-        var checksum = new String(checksumBuilder);
+        var checksum = checksumBuilder.toString();
 
         String oldPassword = consoleReader.readLine("Enter your old super password: ");
         String oldPasswordHash = Sha256Encryptor.encrypt(oldPassword);
@@ -59,6 +61,7 @@ public class ChecksumHandler {
                 System.err.println("Unable to create content folder");
 
         try {
+            checksumFile.delete();
             if (!checksumFile.createNewFile()) System.err.println("Unable to create checksum file");
             var checksumWriter = new FileWriter(checksumPath);
             checksumWriter.write(Sha256Encryptor.encrypt(password) + "\n");

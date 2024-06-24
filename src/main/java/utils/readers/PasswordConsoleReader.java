@@ -11,7 +11,7 @@ public class PasswordConsoleReader implements ConsoleReader {
             return null;
         }
 
-        char[] passwordArray = console.readPassword("Enter your new super password: ");
+        char[] passwordArray = console.readPassword(prompt);
         return new String(passwordArray);
     }
 }

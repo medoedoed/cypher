@@ -17,7 +17,7 @@ public class InitSubcommand implements Runnable {
     @Option(names = {"-d", "--directory"}, description = "Set directory to init utility.")
     private String directory;
 
-    @Option(names = {"-v", "--visible"}, description = "Show password when you enter.")
+    @Option(names = {"-v", "--visible"}, description = "Show password when you enter.", defaultValue = "false")
     private Boolean isVisible;
 
     @Override
@@ -35,14 +35,19 @@ public class InitSubcommand implements Runnable {
 
         var checksumPath = contentFolder + File.separator + checksumFilename;
 
+        System.out.println(checksumPath);
+
         if (new File(checksumPath).exists()) {
             System.out.println("You have already initialized the checksum.");
 
             if (!AgreementHandler.yesNoQuestion("Want to change your super password? (y/n): ")) {
-               return;
+                return;
             }
 
-            ChecksumHandler.checkOldPassword(checksumPath, isVisible);
+            if (!ChecksumHandler.checkOldPassword(checksumPath, isVisible)) {
+                System.out.println("Your super password is not correct.");
+                return;
+            }
         }
 
         ChecksumHandler.saveChecksum(checksumPath, isVisible);

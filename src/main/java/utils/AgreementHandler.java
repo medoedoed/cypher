@@ -15,7 +15,7 @@ public class AgreementHandler {
         }
 
         var reader = new DefaultConsoleReader();
-        var  answer = reader.readLine(question);
+        var answer = reader.readLine(question);
 
         if (answer.equalsIgnoreCase("y")) {
             return true;

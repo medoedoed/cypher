@@ -11,6 +11,6 @@ public class DefaultConsoleReader implements ConsoleReader {
             return null;
         }
 
-        return console.readLine("Enter your new super password: ");
+        return console.readLine(prompt);
     }
 }
