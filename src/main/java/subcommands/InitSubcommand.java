@@ -53,6 +53,5 @@ public class InitSubcommand implements Runnable {
         }
 
         ChecksumHandler.saveChecksum(checksumPath, isVisible);
-        System.out.println("Initializing nice");
     }
 }

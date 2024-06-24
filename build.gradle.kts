@@ -1,1 +1,1 @@
-plugins {    id("java")}group = "medoedoded.ru"version = "1.0-SNAPSHOT"repositories {    mavenCentral()}dependencies {    implementation("io.hotmoka:toml4j:0.7.3")    implementation("info.picocli:picocli:4.7.6")}tasks.test {    useJUnitPlatform()}
+plugins {    id("java")}group = "medoedoded.ru"version = "1.0-SNAPSHOT"repositories {    mavenCentral()}dependencies {    implementation("io.hotmoka:toml4j:0.7.3")    implementation("info.picocli:picocli:4.7.6")    implementation("org.passay:passay:1.6.4")}tasks.test {    useJUnitPlatform()}

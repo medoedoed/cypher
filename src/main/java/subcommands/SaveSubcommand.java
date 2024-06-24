@@ -7,9 +7,18 @@ import picocli.CommandLine.Command;
 import utils.ChecksumHandler;
 import utils.ConfigHandler;
 import utils.DirectoryHandler;
+import utils.LocalPasswordGenerator;
+import utils.contentCreators.ServiceSaver;
 import utils.readers.ConsoleReader;
 import utils.readers.DefaultConsoleReader;
 import utils.readers.PasswordConsoleReader;
+
+import java.awt.*;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
+import java.io.File;
+
+import static java.awt.SystemColor.text;
 
 
 @Command(name = "save",
@@ -28,17 +37,15 @@ public class SaveSubcommand implements Runnable {
     private int passwordLength;
 
     @Option(
-            names = {"-s", "--special"},
-            description = "Include special characters.")
-    private boolean includeSpecialCharacters;
-
-    @Option(
             names = {"-c", "--clipboard"},
             description = "Save password to clipboard.")
     private boolean copyToClipboard;
 
     @Option(names = {"-v", "--visible"}, description = "Show password when you enter it.", defaultValue = "false")
-    private Boolean isVisible;
+    private boolean isVisible;
+
+    @Option(names = {"-h", "--hide"}, description = "Hide password after savin service", defaultValue = "false")
+    private boolean hidePassword;
 
     @Parameters(index = "0", description = "Service name")
     private String service;
@@ -49,7 +56,36 @@ public class SaveSubcommand implements Runnable {
         if (isVisible) reader = new DefaultConsoleReader();
         else reader = new PasswordConsoleReader();
         var contentPath = DirectoryHandler.getFullPath(ConfigHandler.getConfig().getString("contentFolder"));
+        String superPassword = ChecksumHandler.getCurrentPassword(contentPath + File.separator + ".checksum", isVisible);
+        if (superPassword == null) {
+            System.out.println("Password incorrect.");
+            return;
+        }
 
-        if (ChecksumHandler.getCurrentPassword(contentPath, isVisible) == null)
+        String login = new DefaultConsoleReader().readLine("Login: ");
+
+        String password;
+        if (!generate) password = reader.readLine("Password: ");
+        else password = LocalPasswordGenerator.generatePassword(passwordLength);
+
+
+        ServiceSaver.saveService(login, password, service, contentPath, superPassword);
+        //TODO Handle results
+
+        if (copyToClipboard) {
+            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            StringSelection selection = new StringSelection(password);
+            clipboard.setContents(selection, null);
+        }
+
+        if (hidePassword) password = "*****";
+
+
+        System.out.println("Saved service successfully:");
+        System.out.println("Service name:\t" + service);
+        System.out.println("Login:\t\t" + login);
+        System.out.println("Password:\t" + password);
+
+
     }
 }
