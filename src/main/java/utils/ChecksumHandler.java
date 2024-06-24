@@ -9,11 +9,20 @@ import utils.readers.PasswordConsoleReader;
 import java.io.*;
 
 public class ChecksumHandler {
-    public static Boolean checkOldPassword(String checksumPath, Boolean isVisible) {
+    public static Boolean checkCurrentPassword(String checksumPath, Boolean isVisible) {
+        return checkCurrentPassword(checksumPath, isVisible, 0);
+    }
+    public static Boolean checkCurrentPassword(String checksumPath, Boolean isVisible, int iteration) {
+        if (iteration == 3) return false;
+        if (getCurrentPassword(checksumPath, isVisible) != null) return true;
+        else return checkCurrentPassword(checksumPath, isVisible, iteration + 1);
+    }
+
+    public static String getCurrentPassword(String checksumPath, Boolean isVisible) {
         var checksumFile = new File(checksumPath);
         if (!checksumFile.exists()) {
             System.err.println("Checksum file not found");
-            return false;
+            return null;
         }
 
         ConsoleReader consoleReader;
@@ -28,15 +37,16 @@ public class ChecksumHandler {
             }
         } catch (IOException e) {
             System.err.println("Could not read checksum file: " + e.getMessage());
-            return false;
+            return null;
         }
 
         var checksum = checksumBuilder.toString();
 
-        String oldPassword = consoleReader.readLine("Enter your old super password: ");
-        String oldPasswordHash = Sha256Encryptor.encrypt(oldPassword);
+        String currentPassword = consoleReader.readLine("Enter your current super password: ");
+        String oldPasswordHash = Sha256Encryptor.encrypt(currentPassword);
 
-        return checksum.equals(oldPasswordHash);
+        if (checksum.equals(oldPasswordHash)) return currentPassword;
+        return null;
     }
 
     public static void saveChecksum(String checksumPath, Boolean isVisible) {
@@ -61,7 +71,7 @@ public class ChecksumHandler {
                 System.err.println("Could not create folder " + checksumFile.getParentFile().getAbsolutePath());
 
         try {
-            checksumFile.delete();
+            if (!checksumFile.delete()) System.err.println("Unable to update super password: " + checksumFile.getAbsolutePath());
             if (!checksumFile.createNewFile()) System.err.println("Unable to create checksum file");
             var checksumWriter = new FileWriter(checksumPath);
             checksumWriter.write(Sha256Encryptor.encrypt(password) + "\n");
