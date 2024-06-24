@@ -58,7 +58,7 @@ public class ChecksumHandler {
         var checksumFile = new File(checksumPath);
         if (!checksumFile.getParentFile().exists())
             if (!checksumFile.getParentFile().mkdirs())
-                System.err.println("Unable to create content folder");
+                System.err.println("Could not create folder " + checksumFile.getParentFile().getAbsolutePath());
 
         try {
             checksumFile.delete();
