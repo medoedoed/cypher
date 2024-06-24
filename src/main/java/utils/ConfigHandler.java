@@ -5,7 +5,6 @@ import com.moandjiezana.toml.TomlWriter;
 
 import java.io.*;
 import java.util.Map;
-import java.util.Scanner;
 
 
 public class ConfigHandler {

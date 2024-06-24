@@ -1,5 +1,7 @@
 package utils;
 
+import utils.readers.DefaultConsoleReader;
+
 import java.io.Console;
 
 public class AgreementHandler {
@@ -11,13 +13,10 @@ public class AgreementHandler {
         if (iteration == 3) {
             return false;
         }
-        var console = System.console();
-        if (console == null) {
-            System.out.println("No console available");
-            return false;
-        }
-        System.out.println(question);
-        String answer = console.readLine();
+
+        var reader = new DefaultConsoleReader();
+        var  answer = reader.readLine(question);
+
         if (answer.equalsIgnoreCase("y")) {
             return true;
         } else if (answer.equalsIgnoreCase("n")) {
