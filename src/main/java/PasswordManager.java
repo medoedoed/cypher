@@ -1,12 +1,14 @@
 import picocli.CommandLine;
 import subcommands.ChangeSuperPasswordSubcommand;
 import subcommands.InitSubcommand;
+import subcommands.SaveSubcommand;
 
 @CommandLine.Command(name = "PasswordManager",
         version = "Password manager 'pwm' 0.1",
         subcommands = {
                 InitSubcommand.class,
-                ChangeSuperPasswordSubcommand.class
+                ChangeSuperPasswordSubcommand.class,
+                SaveSubcommand.class
         },
         mixinStandardHelpOptions = true)
 public class PasswordManager implements Runnable {

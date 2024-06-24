@@ -19,10 +19,11 @@ Password manager utility for linux
    Options:
    ```shell
    -d, --directory    Set directory to init utility.
+   -v, --visible      Show password when you enter it.
    ```
 2. Обновление супер-пароля.
     ```shell
-    $ pwm chspw 
+    $ pwm chspw [OPTIONS]...
     "Enter your current super password:"
     > *****
     "Enter your new super password:"
@@ -31,11 +32,17 @@ Password manager utility for linux
     > *****
     "Super password changed successfully"
     ```
-
+   Options:
+   ```shell
+   -v, --visible      Show password when you enter it.
+   ```
 3. Установка директории для хранения паролей (по умолчанию ~/.passwords). Все старые пароли переносит в новую директорию:
-    ```shell
-    $ pwm -l /new/directory/
-    ```
+
+   TODO: реализовать set
+
+   ```shell
+   $ pwm -l /new/directory/
+   ```
 4. Сохранение пароля к новому сервису:
     ```shell
    $ pwm save [OPTION]... [SERVICE]
