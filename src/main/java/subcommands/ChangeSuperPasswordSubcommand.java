@@ -1,9 +1,14 @@
 package subcommands;
 
+import com.moandjiezana.toml.Toml;
 import picocli.CommandLine.*;
+import utils.data.Constants;
 import utils.handlers.PassphraseHandler;
 import utils.handlers.ConfigHandler;
 import utils.handlers.DirectoryHandler;
+
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 @Command(name = "chspw", description = "Change super password")
 public class ChangeSuperPasswordSubcommand implements Runnable {
@@ -13,14 +18,20 @@ public class ChangeSuperPasswordSubcommand implements Runnable {
 
     @Override
     public void run() {
-        String contentFolder = ConfigHandler.getConfig().getString("contentFolder");
-        var checksumPath = DirectoryHandler.getFullPath(contentFolder + ".checksum");
+        Toml config;
 
-        if (PassphraseHandler.checkCurrentPassphrase(checksumPath, isVisible)) {
-            System.err.println("Super password does not match.");
-            return;
+        try {
+            config = new ConfigHandler().getConfig();
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot get config: " + e.getMessage());
         }
 
-       PassphraseHandler.saveChecksum(checksumPath, isVisible);
+        String contentFolder = DirectoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+
+        try {
+            new PassphraseHandler().updatePassphrase(contentFolder, isVisible);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 }

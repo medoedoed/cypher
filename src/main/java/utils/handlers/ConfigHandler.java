@@ -2,23 +2,22 @@ package utils.handlers;
 
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;
+import utils.data.Constants;
 
 import java.io.*;
 import java.util.Map;
 
 
 public class ConfigHandler {
-    private static final String configDirectory = System.getProperty("user.home") + "/.config/pwm/";
-    private static final String configPath = configDirectory + "config.toml";
+    private final String configDirectory = System.getProperty("user.home") + "/.config/pwm/";
+    private final String configPath = configDirectory + "config.toml";
 
-    private static final String defaultConfigString =
-            """
-                    contentFolder = "~/.passwords/"
-                    copyUtility = "wl-copy"
-                    """;
-    private static final Toml config = null;
+    private final String defaultConfigString =
+            Constants.CONTENT_FOLDER_KEY + "=~/.passwords/" + "\n" +
+                    Constants.COPY_UTILITY_KEY + "= wl-copy" + "\n";
+    private final Toml config = null;
 
-    private static Toml completeConfig(Toml currentConfig) {
+    private Toml completeConfig(Toml currentConfig) {
         Map<String, Object> currentConfigMap = currentConfig.toMap();
 
         try (StringReader reader = new StringReader(defaultConfigString)) {
@@ -32,14 +31,14 @@ public class ConfigHandler {
         return new Toml().read(new TomlWriter().write(currentConfigMap));
     }
 
-    public static Toml getConfig() throws IOException {
+    public Toml getConfig() throws IOException {
         File configFile = new File(configPath);
         if (!configFile.exists()) return createDefaultConfig();
 
         return completeConfig(new Toml().read(configFile));
     }
 
-    public static Toml createDefaultConfig() throws IOException {
+    public Toml createDefaultConfig() throws IOException {
         var directory = new File(configDirectory);
         if (!directory.exists())
             if (!directory.mkdir()) throw new FileNotFoundException("Config directory could not be created");

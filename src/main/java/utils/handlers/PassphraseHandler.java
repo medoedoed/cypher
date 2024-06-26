@@ -8,17 +8,18 @@ import utils.readers.PasswordConsoleReader;
 
 
 import java.io.*;
+import java.security.NoSuchAlgorithmException;
 
 public class PassphraseHandler {
-    public boolean checkCurrentPassphrase(String checksumPath, boolean isVisible) throws IOException {
+    public boolean checkCurrentPassphrase(String checksumPath, boolean isVisible) throws IOException, NoSuchAlgorithmException {
         return getCurrentPassphrase(checksumPath, isVisible) != null;
     }
 
-    public String getCurrentPassphrase(String checksumPath, boolean isVisible) throws IOException {
+    public String getCurrentPassphrase(String checksumPath, boolean isVisible) throws IOException, NoSuchAlgorithmException {
         return getCurrentPassphrase(checksumPath, isVisible, 0);
     }
 
-    private String getCurrentPassphrase(String checksumPath, boolean isVisible, int iteration) throws IOException {
+    private String getCurrentPassphrase(String checksumPath, boolean isVisible, int iteration) throws IOException, NoSuchAlgorithmException {
         if (iteration >= 3) {
             return null;
         }
@@ -35,7 +36,16 @@ public class PassphraseHandler {
         return getCurrentPassphrase(checksumPath, isVisible, ++iteration);
     }
 
-    public void updatePassphrase(String contentFolder, boolean isVisible) throws IOException {
+    public void updatePassphrase(String contentFolder, boolean isVisible) throws IOException, NoSuchAlgorithmException {
+        if (!getChecksumFile(contentFolder).exists()) {
+            if (new AgreementHandler().yesNoQuestion("Checksum file doesn't exists. Do you want to create it? (y/n): ")) {
+                saveChecksum(contentFolder, isVisible);
+                return;
+            }
+
+            return;
+        }
+
         if (!checkCurrentPassphrase(contentFolder, isVisible)) {
             throw new RuntimeException("Passphrase update failed.");
         }
@@ -49,12 +59,14 @@ public class PassphraseHandler {
             throw new RuntimeException("Passphrases don't match.");
         }
 
+        // Maybe I'll add choosing of encrypting algorithm
         updateChecksumFile(contentFolder, Sha256Encryptor.encrypt(password));
+        System.out.println("Passphrase updated successfully.");
     }
 
-    public void saveChecksum(String contentFolder, boolean isVisible) throws IOException {
+    public void saveChecksum(String contentFolder, boolean isVisible) throws IOException, NoSuchAlgorithmException {
         if (getChecksumFile(contentFolder).exists()) {
-            if (AgreementHandler.yesNoQuestion("Checksum file already exists. Do you want to overwrite it? (y/n)")) {
+            if (new AgreementHandler().yesNoQuestion("Checksum file already exists. Do you want to overwrite it? (y/n): ")) {
                 updatePassphrase(contentFolder, isVisible);
                 return;
             }
@@ -73,6 +85,7 @@ public class PassphraseHandler {
         }
 
         saveChecksumFile(contentFolder, Sha256Encryptor.encrypt(password));
+        System.out.println("Passphrase saved successfully.");
     }
 
     private File getChecksumFile(String contentFolder) {

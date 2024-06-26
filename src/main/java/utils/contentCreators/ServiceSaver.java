@@ -1,36 +1,72 @@
 package utils.contentCreators;
 
+import encryption.LocalPasswordGenerator;
 import encryption.symmetricAlgorithms.SymmetricAlgorithm;
+import utils.data.ServiceData;
 import utils.handlers.AgreementHandler;
+import utils.handlers.PassphraseHandler;
+import utils.readers.ConsoleReader;
+import utils.readers.DefaultConsoleReader;
+import utils.readers.PasswordConsoleReader;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 public class ServiceSaver {
-    public static void saveService(String login, String password, String serviceName, String contentFolder, String superPassword, SymmetricAlgorithm encryptor) throws IOException {
-        var contentFolderFile = new File(contentFolder);
+    public ServiceData saveService(
+            String serviceName,
+            String contentFolder,
+            boolean isVisible,
+            LocalPasswordGenerator generator,
+            SymmetricAlgorithm encryptor) throws IOException,
 
-        if (!contentFolderFile.exists())
-            if (!contentFolderFile.mkdirs()) {
-                throw new RuntimeException("Could not create folder " + contentFolderFile.getAbsolutePath());
-            }
+            NoSuchAlgorithmException {
+        ConsoleReader passwordReader;
+        if (isVisible) passwordReader = new PasswordConsoleReader();
+        else passwordReader = new DefaultConsoleReader();
 
+        var serviceFile = getServiceFile(serviceName, contentFolder);
+
+        var passphrase = new PassphraseHandler().getCurrentPassphrase(contentFolder, isVisible);
+        var login = new DefaultConsoleReader().readLine("Enter login: ");
+
+        String password;
+
+        if (generator != null) password = passwordReader.readLine("Enter password: ");
+        else password = generator.generatePassword();
+
+        var serviceWriter = new FileWriter(serviceFile);
+        serviceWriter.write(encryptor.encrypt(login, passphrase) + "\n" + encryptor.encrypt(password, passphrase));
+
+        System.out.println(encryptor.encrypt(login, passphrase) + "\n" + encryptor.encrypt(password, passphrase));
+
+        serviceWriter.close();
+
+        return new ServiceData(login, password);
+    }
+
+    private File getServiceFile(String serviceName, String contentFolder) throws IOException {
         var serviceFile = new File(contentFolder + File.separator + serviceName);
 
-        if (serviceFile.exists()) {
-            if (AgreementHandler.yesNoQuestion("Service already exists: " + serviceFile.getName() + "Want to rewrite password? (y/n)")) {
-                System.out.println("TODO");
-                // TODO
-            }
+        if (!serviceFile.getParentFile().exists()) if (!serviceFile.getParentFile().mkdirs())
+            throw new RuntimeException("Could not create folder " + serviceFile.getParentFile().getAbsolutePath());
 
-            return;
+
+        if (serviceFile.exists()) {
+            throw new RuntimeException("Service " + serviceName + " already exists");
+//            if (new AgreementHandler().yesNoQuestion("Service already exists: " + serviceFile.getName() + "Want to rewrite password? (y/n)")) {
+//                System.out.println("TODO");
+//                // TODO
+//                //  ???? pls kirill v next time pishi chto nado todo
+//            }
+//
+//            return;
         }
 
         if (!serviceFile.createNewFile())
             throw new RuntimeException("Could not create file " + serviceFile.getAbsolutePath());
-
-        var serviceWriter = new FileWriter(serviceFile);
-        serviceWriter.write(encryptor.encrypt(login, superPassword) + System.lineSeparator() + encryptor.encrypt(password, superPassword));
+        return serviceFile;
     }
 }

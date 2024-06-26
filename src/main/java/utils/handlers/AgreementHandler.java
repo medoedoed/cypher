@@ -3,12 +3,12 @@ package utils.handlers;
 import utils.readers.DefaultConsoleReader;
 
 public class AgreementHandler {
-    public static Boolean yesNoQuestion(String question) {
+    public boolean yesNoQuestion(String question) {
         return yesNoQuestion(question, 0);
     }
 
-    public static Boolean yesNoQuestion(String question, int iteration) {
-        if (iteration == 3) {
+    private boolean yesNoQuestion(String question, int iteration) {
+        if (iteration >= 3) {
             return false;
         }
 

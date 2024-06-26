@@ -1,11 +1,16 @@
 package subcommands;
 
 
+import com.moandjiezana.toml.Toml;
 import encryption.LocalPasswordGenerator;
+import encryption.symmetricAlgorithms.Aes256Encryptor;
+import encryption.symmetricAlgorithms.SymmetricAlgorithm;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
 import utils.contentCreators.ServiceSaver;
+import utils.data.Constants;
+import utils.data.ServiceData;
 import utils.handlers.ConfigHandler;
 import utils.handlers.CopyHandler;
 import utils.handlers.DirectoryHandler;
@@ -15,6 +20,8 @@ import utils.readers.DefaultConsoleReader;
 import utils.readers.PasswordConsoleReader;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 
 @Command(name = "save",
@@ -51,38 +58,61 @@ public class SaveSubcommand implements Runnable {
 
     @Override
     public void run() {
-        ConsoleReader reader;
-        if (isVisible) reader = new DefaultConsoleReader();
-        else reader = new PasswordConsoleReader();
-        var contentPath = DirectoryHandler.getFullPath(ConfigHandler.getConfig().getString("contentFolder"));
+        Toml config;
+        String superPassword;
+        SymmetricAlgorithm algorithm = new Aes256Encryptor();
 
-        String superPassword = PassphraseHandler.getCurrentPassphrase(contentPath + File.separator + ".checksum", isVisible);
+        try {
+            config = new ConfigHandler().getConfig();
+        } catch (IOException e) {
+            throw new RuntimeException("Cannot get config: " + e.getMessage());
+        }
+
+        String contentFolder = DirectoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+
+        try {
+            superPassword = new PassphraseHandler().getCurrentPassphrase(contentFolder, isVisible);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         if (superPassword == null) {
-            System.out.println("Password incorrect.");
-            return;
+            throw new RuntimeException("Password incorrect.");
         }
 
-        String login = new DefaultConsoleReader().readLine("Login: ");
+        LocalPasswordGenerator generator = null;
 
-        String password;
-        if (!generate) password = reader.readLine("Password: ");
-        else password = LocalPasswordGenerator.generatePassword(passwordLength);
+        if (generate) {
+            generator = new LocalPasswordGenerator(special, passwordLength);
+        }
 
+        ServiceData serviceData;
 
-        ServiceSaver.saveService(login, password, service, contentPath, superPassword);
+        try {
+            serviceData = new ServiceSaver().saveService(service, contentFolder, isVisible, generator, algorithm);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         //TODO Handle results
+        // How??? Kirill???
 
-        if (copyToClipboard) {
-            CopyHandler.copyToClipboard(password, ConfigHandler.getConfig().getString("copyUtility"));
-        }
 
-        if (hidePassword) password = "*****";
+//        if (copyToClipboard) {
+//            try {
+//                CopyHandler.copyToClipboard(password, ConfigHandler.getConfig().getString("copyUtility"));
+//            } catch (Exception e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+
 
         System.out.println("Saved service successfully:");
         System.out.println("Service name:\t" + service);
-        System.out.println("Login:\t\t" + login);
-        System.out.println("Password:\t" + password);
+        System.out.println("Login:\t\t" + serviceData.login());
+        if (hidePassword)
+            System.out.println("Password:\t*****");
+        else
+            System.out.println("Password:\t" + serviceData.password());
     }
-
-
 }

@@ -2,6 +2,7 @@ package subcommands;
 
 import com.moandjiezana.toml.Toml;
 import picocli.CommandLine.*;
+import utils.data.Constants;
 import utils.handlers.PassphraseHandler;
 import utils.handlers.ConfigHandler;
 import utils.handlers.DirectoryHandler;
@@ -25,7 +26,7 @@ public class InitSubcommand implements Runnable {
         Toml config;
 
         try {
-            config = ConfigHandler.getConfig();
+            config = new ConfigHandler().getConfig();
         } catch (IOException e) {
             throw new RuntimeException("Cannot get config: " + e.getMessage());
         }
@@ -33,14 +34,13 @@ public class InitSubcommand implements Runnable {
         if (directory != null && !directory.isEmpty()) {
             contentFolder = DirectoryHandler.getFullPath(directory);
         } else {
-            contentFolder = DirectoryHandler.getFullPath(config.getString("contentFolder"));
+            contentFolder = DirectoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
         }
 
         try {
             new PassphraseHandler().saveChecksum(contentFolder, isVisible);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
+        } catch (Exception e) {
+           throw new RuntimeException(e.getMessage());
         }
-
     }
 }
