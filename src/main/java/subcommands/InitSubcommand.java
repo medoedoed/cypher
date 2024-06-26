@@ -22,7 +22,7 @@ public class InitSubcommand implements Runnable {
     @Override
     public void run() {
         String contentFolder;
-        Toml config = null;
+        Toml config;
 
         try {
             config = ConfigHandler.getConfig();
@@ -36,19 +36,11 @@ public class InitSubcommand implements Runnable {
             contentFolder = DirectoryHandler.getFullPath(config.getString("contentFolder"));
         }
 
-//        if (new File(contentFolder).exists()) {
-//            System.out.println("You have already initialized the checksum.");
-//
-//            if (!AgreementHandler.yesNoQuestion("Want to change your super password? (y/n): ")) {
-//                return;
-//            }
-//
-//            if (!PassphraseHandler.checkCurrentPassphrase(checksumPath, isVisible)) {
-//                System.out.println("Your super password is not correct.");
-//                return;
-//            }
-//        }
+        try {
+            new PassphraseHandler().saveChecksum(contentFolder, isVisible);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
-        PassphraseHandler.saveChecksum(contentFolder, isVisible);
     }
 }
