@@ -1,9 +1,9 @@
 package subcommands;
 
 import picocli.CommandLine.*;
-import utils.ChecksumHandler;
-import utils.ConfigHandler;
-import utils.DirectoryHandler;
+import utils.handlers.PassphraseHandler;
+import utils.handlers.ConfigHandler;
+import utils.handlers.DirectoryHandler;
 
 @Command(name = "chspw", description = "Change super password")
 public class ChangeSuperPasswordSubcommand implements Runnable {
@@ -16,11 +16,11 @@ public class ChangeSuperPasswordSubcommand implements Runnable {
         String contentFolder = ConfigHandler.getConfig().getString("contentFolder");
         var checksumPath = DirectoryHandler.getFullPath(contentFolder + ".checksum");
 
-        if (ChecksumHandler.checkCurrentPassword(checksumPath, isVisible)) {
+        if (PassphraseHandler.checkCurrentPassword(checksumPath, isVisible)) {
             System.err.println("Super password does not match.");
             return;
         }
 
-       ChecksumHandler.saveChecksum(checksumPath, isVisible);
+       PassphraseHandler.saveChecksum(checksumPath, isVisible);
     }
 }

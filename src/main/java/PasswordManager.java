@@ -12,7 +12,6 @@ import subcommands.SaveSubcommand;
         },
         mixinStandardHelpOptions = true)
 public class PasswordManager implements Runnable {
-
     public static void main(String[] args) {
         System.out.println("__________________________________________");
         int exitCode = new CommandLine(new PasswordManager()).execute(args);

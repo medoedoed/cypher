@@ -7,8 +7,7 @@ public class PasswordConsoleReader implements ConsoleReader {
     public String readLine(String prompt) {
         Console console = System.console();
         if (console == null) {
-            System.out.println("No console available");
-            return null;
+            throw new RuntimeException("No console available");
         }
 
         char[] passwordArray = console.readPassword(prompt);

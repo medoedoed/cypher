@@ -1,4 +1,4 @@
-package utils;
+package encryption;
 
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;

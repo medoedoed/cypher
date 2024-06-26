@@ -1,8 +1,6 @@
-package utils;
+package utils.handlers;
 
 import utils.readers.DefaultConsoleReader;
-
-import java.io.Console;
 
 public class AgreementHandler {
     public static Boolean yesNoQuestion(String question) {

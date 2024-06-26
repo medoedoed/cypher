@@ -7,8 +7,7 @@ public class DefaultConsoleReader implements ConsoleReader {
     public String readLine(String prompt) {
         Console console = System.console();
         if (console == null) {
-            System.out.println("No console available");
-            return null;
+            throw new RuntimeException("No console available");
         }
 
         return console.readLine(prompt);

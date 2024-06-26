@@ -1,24 +1,20 @@
 package subcommands;
 
 
+import encryption.LocalPasswordGenerator;
 import picocli.CommandLine.Parameters;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Command;
-import utils.ChecksumHandler;
-import utils.ConfigHandler;
-import utils.DirectoryHandler;
-import utils.LocalPasswordGenerator;
 import utils.contentCreators.ServiceSaver;
+import utils.handlers.ConfigHandler;
+import utils.handlers.CopyHandler;
+import utils.handlers.DirectoryHandler;
+import utils.handlers.PassphraseHandler;
 import utils.readers.ConsoleReader;
 import utils.readers.DefaultConsoleReader;
 import utils.readers.PasswordConsoleReader;
 
-import java.awt.*;
-import java.awt.datatransfer.Clipboard;
-import java.awt.datatransfer.StringSelection;
 import java.io.File;
-
-import static java.awt.SystemColor.text;
 
 
 @Command(name = "save",
@@ -47,6 +43,9 @@ public class SaveSubcommand implements Runnable {
     @Option(names = {"-h", "--hide"}, description = "Hide password after savin service", defaultValue = "false")
     private boolean hidePassword;
 
+    @Option(names = {"-s", "--special"}, description = "Use special characters", defaultValue = "false")
+    private boolean special;
+
     @Parameters(index = "0", description = "Service name")
     private String service;
 
@@ -56,7 +55,8 @@ public class SaveSubcommand implements Runnable {
         if (isVisible) reader = new DefaultConsoleReader();
         else reader = new PasswordConsoleReader();
         var contentPath = DirectoryHandler.getFullPath(ConfigHandler.getConfig().getString("contentFolder"));
-        String superPassword = ChecksumHandler.getCurrentPassword(contentPath + File.separator + ".checksum", isVisible);
+
+        String superPassword = PassphraseHandler.getCurrentPassphrase(contentPath + File.separator + ".checksum", isVisible);
         if (superPassword == null) {
             System.out.println("Password incorrect.");
             return;
@@ -73,19 +73,16 @@ public class SaveSubcommand implements Runnable {
         //TODO Handle results
 
         if (copyToClipboard) {
-            Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-            StringSelection selection = new StringSelection(password);
-            clipboard.setContents(selection, null);
+            CopyHandler.copyToClipboard(password, ConfigHandler.getConfig().getString("copyUtility"));
         }
 
         if (hidePassword) password = "*****";
-
 
         System.out.println("Saved service successfully:");
         System.out.println("Service name:\t" + service);
         System.out.println("Login:\t\t" + login);
         System.out.println("Password:\t" + password);
-
-
     }
+
+
 }
