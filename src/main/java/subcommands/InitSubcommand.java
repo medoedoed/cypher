@@ -43,7 +43,7 @@ public class InitSubcommand implements Runnable {
 //                return;
 //            }
 //
-//            if (!PassphraseHandler.checkCurrentPassword(checksumPath, isVisible)) {
+//            if (!PassphraseHandler.checkCurrentPassphrase(checksumPath, isVisible)) {
 //                System.out.println("Your super password is not correct.");
 //                return;
 //            }

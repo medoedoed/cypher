@@ -16,7 +16,7 @@ public class ChangeSuperPasswordSubcommand implements Runnable {
         String contentFolder = ConfigHandler.getConfig().getString("contentFolder");
         var checksumPath = DirectoryHandler.getFullPath(contentFolder + ".checksum");
 
-        if (PassphraseHandler.checkCurrentPassword(checksumPath, isVisible)) {
+        if (PassphraseHandler.checkCurrentPassphrase(checksumPath, isVisible)) {
             System.err.println("Super password does not match.");
             return;
         }
