@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 
 public class CopyHandler {
-    public static void copyToClipboard(String text, String copyUtility) throws IOException, InterruptedException {
+    public void copyToClipboard(String text, String copyUtility) throws IOException, InterruptedException {
         ProcessBuilder processBuilder = new ProcessBuilder(copyUtility);
         Process process = processBuilder.start();
         try (OutputStream os = process.getOutputStream()) {

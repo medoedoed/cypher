@@ -23,12 +23,13 @@ public class InitSubcommand implements Runnable {
     @Override
     public void run() {
         String contentFolder;
-        Toml config;
+        Toml config = null;
 
         try {
             config = new ConfigHandler().getConfig();
         } catch (IOException e) {
-            throw new RuntimeException("Cannot get config: " + e.getMessage());
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
 
         if (directory != null && !directory.isEmpty()) {
@@ -40,7 +41,8 @@ public class InitSubcommand implements Runnable {
         try {
             new PassphraseHandler().saveChecksum(contentFolder, isVisible);
         } catch (Exception e) {
-           throw new RuntimeException(e.getMessage());
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
     }
 }

@@ -95,16 +95,14 @@ public class SaveSubcommand implements Runnable {
         }
 
         //TODO Handle results
-        // How??? Kirill???
 
-
-//        if (copyToClipboard) {
-//            try {
-//                CopyHandler.copyToClipboard(password, ConfigHandler.getConfig().getString("copyUtility"));
-//            } catch (Exception e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
+        if (copyToClipboard) {
+            try {
+                new CopyHandler().copyToClipboard(serviceData.password(), config.getString(Constants.COPY_UTILITY_KEY));
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
 
 
         System.out.println("Saved service successfully:");

@@ -5,6 +5,7 @@ import com.moandjiezana.toml.TomlWriter;
 import utils.data.Constants;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Map;
 
 
@@ -13,9 +14,8 @@ public class ConfigHandler {
     private final String configPath = configDirectory + "config.toml";
 
     private final String defaultConfigString =
-            Constants.CONTENT_FOLDER_KEY + "=~/.passwords/" + "\n" +
-                    Constants.COPY_UTILITY_KEY + "= wl-copy" + "\n";
-    private final Toml config = null;
+            Constants.CONTENT_FOLDER_KEY + " = \"~/.passwords\"" + "\n" +
+                    Constants.COPY_UTILITY_KEY + " = \"wl-copy\"" + "\n";
 
     private Toml completeConfig(Toml currentConfig) {
         Map<String, Object> currentConfigMap = currentConfig.toMap();
@@ -32,10 +32,16 @@ public class ConfigHandler {
     }
 
     public Toml getConfig() throws IOException {
-        File configFile = new File(configPath);
+        var configFile = new File(configPath);
         if (!configFile.exists()) return createDefaultConfig();
 
-        return completeConfig(new Toml().read(configFile));
+        StringBuilder tomlBuilder = new StringBuilder();
+        Files.readAllLines(configFile.toPath()).forEach(line -> {
+            if (line.isEmpty()) return;
+            tomlBuilder.append(line).append("\n");
+        });
+        return completeConfig(new Toml().read(tomlBuilder.toString()));
+
     }
 
     public Toml createDefaultConfig() throws IOException {
@@ -43,13 +49,13 @@ public class ConfigHandler {
         if (!directory.exists())
             if (!directory.mkdir()) throw new FileNotFoundException("Config directory could not be created");
 
-        File file = new File(configPath);
-        if (!file.createNewFile()) throw new FileNotFoundException("Config file could not be created");
+        File configFile = new File(configPath);
+        if (!configFile.createNewFile()) throw new FileNotFoundException("Config file could not be created");
 
-        FileWriter writer = new FileWriter(file);
+        FileWriter writer = new FileWriter(configFile);
         writer.write(defaultConfigString);
         writer.close();
 
-        return config;
+        return new Toml().read(defaultConfigString);
     }
 }
