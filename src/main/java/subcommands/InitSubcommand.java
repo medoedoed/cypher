@@ -28,8 +28,9 @@ public class InitSubcommand implements Runnable {
         try {
             config = new ConfigHandler().getConfig();
         } catch (IOException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
+            throw new RuntimeException(e);
+//            System.err.println(e.getMessage());
+//            System.exit(1);
         }
 
         if (directory != null && !directory.isEmpty()) {
@@ -41,8 +42,9 @@ public class InitSubcommand implements Runnable {
         try {
             new PassphraseHandler().saveChecksum(contentFolder, isVisible);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
+            throw new RuntimeException(e);
+//            System.err.println(e.getMessage());
+//            System.exit(1);
         }
     }
 }

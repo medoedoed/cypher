@@ -1,6 +1,8 @@
 package utils.readers;
 
+import java.io.BufferedReader;
 import java.io.Console;
+import java.io.InputStreamReader;
 
 public class PasswordConsoleReader implements ConsoleReader {
     @Override
