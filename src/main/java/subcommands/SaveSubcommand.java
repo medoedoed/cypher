@@ -31,7 +31,7 @@ public class SaveSubcommand implements Runnable {
     @Option(
             names = {"-g", "--generate"},
             description = "Generate password.")
-    private boolean generate;
+    private boolean generatePassword;
 
     @Option(
             names = {"-l", "--length"},
@@ -51,66 +51,35 @@ public class SaveSubcommand implements Runnable {
     private boolean hidePassword;
 
     @Option(names = {"-s", "--special"}, description = "Use special characters", defaultValue = "false")
-    private boolean special;
+    private boolean useSpecialCharacters;
 
     @Parameters(index = "0", description = "Service name")
-    private String service;
+    private String serviceName;
+
+    private final ConfigHandler configHandler = new ConfigHandler();
+    private final ServiceSaver serviceSaver = new ServiceSaver();
 
     @Override
     public void run() {
         Toml config;
-        String superPassword;
         SymmetricAlgorithm algorithm = new Aes256Encryptor();
+        // TODO: add choosing of algorithm (in config)
 
         try {
-            config = new ConfigHandler().getConfig();
+            config = configHandler.getConfig();
         } catch (IOException e) {
-            throw new RuntimeException("Cannot get config: " + e.getMessage());
-        }
-
-        String contentFolder = DirectoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-
-        try {
-            superPassword = new PassphraseHandler().getCurrentPassphrase(contentFolder, isVisible);
-        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        if (superPassword == null) {
-            throw new RuntimeException("Password incorrect.");
-        }
+        var contentFolder = config.getString(Constants.CONTENT_FOLDER_KEY);
 
-        LocalPasswordGenerator generator = null;
-
-        if (generate) {
-            generator = new LocalPasswordGenerator(special, passwordLength);
-        }
-
-        ServiceData serviceData;
+        LocalPasswordGenerator passwordGenerator = null;
+        if (generatePassword) passwordGenerator = new LocalPasswordGenerator(useSpecialCharacters, passwordLength);
 
         try {
-            serviceData = new ServiceSaver().saveService(service, contentFolder, isVisible, generator, algorithm);
-        } catch (Exception e) {
+            serviceSaver.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
+        } catch (IOException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
-
-        //TODO Handle results
-
-        if (copyToClipboard) {
-            try {
-                new CopyHandler().copyToClipboard(serviceData.password(), config.getString(Constants.COPY_UTILITY_KEY));
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-
-
-        System.out.println("Saved service successfully:");
-        System.out.println("Service name:\t" + service);
-        System.out.println("Login:\t\t" + serviceData.login());
-        if (hidePassword)
-            System.out.println("Password:\t*****");
-        else
-            System.out.println("Password:\t" + serviceData.password());
     }
 }

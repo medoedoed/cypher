@@ -20,9 +20,7 @@ public class ServiceSaver {
             String contentFolder,
             boolean isVisible,
             LocalPasswordGenerator generator,
-            SymmetricAlgorithm encryptor) throws IOException,
-
-            NoSuchAlgorithmException {
+            SymmetricAlgorithm encryptor) throws IOException, NoSuchAlgorithmException {
         ConsoleReader passwordReader;
         if (isVisible) passwordReader = new PasswordConsoleReader();
         else passwordReader = new DefaultConsoleReader();
@@ -68,5 +66,14 @@ public class ServiceSaver {
         if (!serviceFile.createNewFile())
             throw new RuntimeException("Could not create file " + serviceFile.getAbsolutePath());
         return serviceFile;
+    }
+
+    public boolean serviceExists(String serviceName, String contentFolder) {
+        var serviceFile = new File(contentFolder + File.separator + serviceName);
+        return serviceFile.exists();
+    }
+
+    public void updateService(String serviceName, String contentFolder) {
+        //TODO realize updating
     }
 }
