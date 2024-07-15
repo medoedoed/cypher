@@ -10,7 +10,6 @@ import utils.readers.DefaultConsoleReader;
 import utils.readers.PasswordConsoleReader;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -24,10 +23,11 @@ public class ServiceSaver {
             boolean isVisible,
             LocalPasswordGenerator generator,
             SymmetricAlgorithm encryptor) throws IOException, NoSuchAlgorithmException {
+        boolean updateService = false;
 
         if (serviceExists(serviceName, contentFolder)) {
             if (new AgreementHandler().yesNoQuestion("Service \"" + serviceName + "\" already exists. Do you want to overwrite it? (y/n) ")) {
-                updateService(serviceName, contentFolder);
+               updateService = true;
             } else {
                 return null;
             }
@@ -48,25 +48,20 @@ public class ServiceSaver {
         if (generator == null) password = passwordReader.readLine("Enter password: ");
         else password = generator.generatePassword();
 
-        var serviceData = new ServiceData(login, password);
-
-        serviceWriter.writeService(
+        if (updateService) serviceWriter.updateService(encryptor.encrypt(login, passphrase) + "\n" + encryptor.encrypt(password, passphrase) + "\n",
+                serviceName,
+                contentFolder);
+        else serviceWriter.writeService(
                 encryptor.encrypt(login, passphrase) + "\n" + encryptor.encrypt(password, passphrase) + "\n",
                 serviceName,
                 contentFolder);
 
-        System.out.println(encryptor.encrypt(login, passphrase) + "\n" + encryptor.encrypt(password, passphrase));
 
-        serviceWriter.close();
-
-        return serviceData;
+        return new ServiceData(login, password);
     }
 
     public boolean serviceExists(String serviceName, String contentFolder) {
         return new File(contentFolder + File.separator + serviceName).exists();
     }
 
-    public void updateService(String serviceName, String contentFolder) {
-        //TODO realize updating
-    }
 }
