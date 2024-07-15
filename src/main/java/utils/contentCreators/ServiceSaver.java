@@ -15,28 +15,42 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 public class ServiceSaver {
+    private final PassphraseHandler passphraseHandler = new PassphraseHandler();
+
+
     public ServiceData saveService(
             String serviceName,
             String contentFolder,
             boolean isVisible,
             LocalPasswordGenerator generator,
             SymmetricAlgorithm encryptor) throws IOException, NoSuchAlgorithmException {
+
+        if (serviceExists(serviceName, contentFolder)) {
+            if (new AgreementHandler().yesNoQuestion("Service \"" + serviceName + "\" already exists. Do you want to overwrite it? (y/n) ")) {
+                updateService(serviceName, contentFolder);
+            } else {
+                return null;
+            }
+        }
+
+        var defaultReader = new DefaultConsoleReader();
         ConsoleReader passwordReader;
-        if (isVisible) passwordReader = new PasswordConsoleReader();
-        else passwordReader = new DefaultConsoleReader();
+        if (isVisible) passwordReader = new DefaultConsoleReader();
+        else passwordReader = new PasswordConsoleReader();
 
-        var serviceFile = getServiceFile(serviceName, contentFolder);
+        var passphrase = passphraseHandler.getCurrentPassphrase(contentFolder, isVisible);
+        if (passphrase == null) throw new RuntimeException("Incorrect passphrase");
 
-        var passphrase = new PassphraseHandler().getCurrentPassphrase(contentFolder, isVisible);
-        var login = new DefaultConsoleReader().readLine("Enter login: ");
+        var login = defaultReader.readLine("Enter login: ");
 
         String password;
 
-        if (generator != null) password = passwordReader.readLine("Enter password: ");
+        if (generator == null) password = passwordReader.readLine("Enter password: ");
         else password = generator.generatePassword();
 
+        var serviceFile = getServiceFile(serviceName, contentFolder);
         var serviceWriter = new FileWriter(serviceFile);
-        serviceWriter.write(encryptor.encrypt(login, passphrase) + "\n" + encryptor.encrypt(password, passphrase));
+        serviceWriter.write(encryptor.encrypt(login, passphrase) + "\n" + encryptor.encrypt(password, passphrase) + "\n");
 
         System.out.println(encryptor.encrypt(login, passphrase) + "\n" + encryptor.encrypt(password, passphrase));
 

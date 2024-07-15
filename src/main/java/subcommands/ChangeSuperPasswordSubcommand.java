@@ -12,7 +12,7 @@ import java.security.NoSuchAlgorithmException;
 
 @Command(name = "chspw", description = "Change super password")
 public class ChangeSuperPasswordSubcommand implements Runnable {
-
+    private final DirectoryHandler directoryHandler = new DirectoryHandler();
     @Option(names = {"-v", "--visible"}, description = "Show password when you enter.", defaultValue = "false")
     private Boolean isVisible;
 
@@ -26,7 +26,7 @@ public class ChangeSuperPasswordSubcommand implements Runnable {
             throw new RuntimeException("Cannot get config: " + e.getMessage());
         }
 
-        String contentFolder = DirectoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+        String contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
 
         try {
             new PassphraseHandler().updatePassphrase(contentFolder, isVisible);

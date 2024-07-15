@@ -13,7 +13,7 @@ import java.io.IOException;
         description = "Initialize utility.",
         mixinStandardHelpOptions = true)
 public class InitSubcommand implements Runnable {
-
+    private final DirectoryHandler directoryHandler = new DirectoryHandler();
     @Option(names = {"-d", "--directory"}, description = "Set directory to init utility.")
     private String directory;
 
@@ -34,9 +34,9 @@ public class InitSubcommand implements Runnable {
         }
 
         if (directory != null && !directory.isEmpty()) {
-            contentFolder = DirectoryHandler.getFullPath(directory);
+            contentFolder = directoryHandler.getFullPath(directory);
         } else {
-            contentFolder = DirectoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+            contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
         }
 
         try {

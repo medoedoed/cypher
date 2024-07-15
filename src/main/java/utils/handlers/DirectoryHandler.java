@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 
 public class DirectoryHandler {
-    public static String getFullPath(String path) {
+    public  String getFullPath(String path) {
         if (path == null ) return null;
 
         if (path.isEmpty()) return System.getProperty("user.dir");

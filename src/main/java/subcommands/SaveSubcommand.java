@@ -47,7 +47,7 @@ public class SaveSubcommand implements Runnable {
     @Option(names = {"-v", "--visible"}, description = "Show password when you enter it.", defaultValue = "false")
     private boolean isVisible;
 
-    @Option(names = {"-h", "--hide"}, description = "Hide password after savin service", defaultValue = "false")
+    @Option(names = {"-h", "--hide"}, description = "Hide password after saving service", defaultValue = "false")
     private boolean hidePassword;
 
     @Option(names = {"-s", "--special"}, description = "Use special characters", defaultValue = "false")
@@ -58,6 +58,8 @@ public class SaveSubcommand implements Runnable {
 
     private final ConfigHandler configHandler = new ConfigHandler();
     private final ServiceSaver serviceSaver = new ServiceSaver();
+    private final PassphraseHandler passphraseHandler = new PassphraseHandler();
+    private final DirectoryHandler directoryHandler = new DirectoryHandler();
 
     @Override
     public void run() {
@@ -71,15 +73,34 @@ public class SaveSubcommand implements Runnable {
             throw new RuntimeException(e);
         }
 
-        var contentFolder = config.getString(Constants.CONTENT_FOLDER_KEY);
+        var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+
+
+        System.out.println(contentFolder);
+
 
         LocalPasswordGenerator passwordGenerator = null;
         if (generatePassword) passwordGenerator = new LocalPasswordGenerator(useSpecialCharacters, passwordLength);
 
+        ServiceData serviceData;
+
         try {
-            serviceSaver.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
+            if (!passphraseHandler.checksumExists(contentFolder)) {
+                passphraseHandler.updatePassphrase(contentFolder, isVisible);
+            }
+
+            if (!passphraseHandler.checksumExists(contentFolder)) {
+                return;
+            }
+
+            serviceData = serviceSaver.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
         } catch (IOException | NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
+
+        if (serviceData == null) return;
+
+        System.out.println(serviceData.login());
+        System.out.println(serviceData.password());
     }
 }

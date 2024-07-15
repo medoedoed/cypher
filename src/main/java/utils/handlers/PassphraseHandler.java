@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
 public class PassphraseHandler {
+
     public boolean checkCurrentPassphrase(String checksumPath, boolean isVisible) throws IOException, NoSuchAlgorithmException {
         return getCurrentPassphrase(checksumPath, isVisible) != null;
     }
@@ -21,19 +22,22 @@ public class PassphraseHandler {
     }
 
     private String getCurrentPassphrase(String checksumPath, boolean isVisible, int iteration) throws IOException, NoSuchAlgorithmException {
-        if (iteration >= 3) {
+        int MAX_ITERATIONS = 3;
+
+        if (iteration >= MAX_ITERATIONS) {
             return null;
         }
 
         var checksumFile = getChecksumFile(checksumPath);
         var reader = getReader(isVisible);
 
-        String currentPassphrase = reader.readLine("Enter your current super password: ");
+        String currentPassphrase = reader.readLine("Passphrase: ");
         String currentPassphraseHash = Sha256Encryptor.encrypt(currentPassphrase);
 
         var currentChecksum = new BufferedReader(new FileReader(checksumFile)).readLine();
         if (currentChecksum.equals(currentPassphraseHash)) return currentPassphrase;
 
+        if (iteration <= MAX_ITERATIONS - 2) System.out.println("Sorry, try again.");
         return getCurrentPassphrase(checksumPath, isVisible, ++iteration);
     }
 
@@ -94,7 +98,7 @@ public class PassphraseHandler {
         return new File(checksumPath);
     }
 
-    private boolean checksumExists(String contentFolder) throws IOException {
+    public boolean checksumExists(String contentFolder) throws IOException {
         var checksumFile = getChecksumFile(contentFolder);
         if (!checksumFile.exists()) return false;
         var lines = Files.readAllLines(getChecksumFile(contentFolder).toPath());
@@ -112,7 +116,6 @@ public class PassphraseHandler {
         if (!checksumFile.getParentFile().exists() && !checksumFile.getParentFile().mkdirs())
             throw new RuntimeException("Could not create folder " + checksumFile.getParentFile().getAbsolutePath());
 
-        System.out.println(checksumFile.getAbsolutePath());
         if (!checksumFile.createNewFile())
             throw new RuntimeException("Unable to create checksum file: " + checksumFile.getAbsolutePath());
 
