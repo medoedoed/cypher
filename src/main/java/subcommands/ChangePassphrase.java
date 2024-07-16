@@ -8,10 +8,9 @@ import utils.handlers.ConfigHandler;
 import utils.handlers.DirectoryHandler;
 
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
-@Command(name = "chspw", description = "Change super password")
-public class ChangeSuperPasswordSubcommand implements Runnable {
+@Command(name = "chp", description = "Change super password")
+public class ChangePassphrase implements Runnable {
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     @Option(names = {"-v", "--visible"}, description = "Show password when you enter.", defaultValue = "false")
     private Boolean isVisible;

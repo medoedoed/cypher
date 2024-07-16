@@ -65,7 +65,7 @@ public class PassphraseHandler {
         }
 
         // Maybe I'll add choosing of encrypting algorithm
-        updateChecksumFile(contentFolder, Sha256Encryptor.encrypt(password));
+        saveChecksumFile(contentFolder, Sha256Encryptor.encrypt(password));
         System.out.println("Passphrase updated successfully.");
     }
 
@@ -93,9 +93,14 @@ public class PassphraseHandler {
         System.out.println("Passphrase saved successfully.");
     }
 
-    private File getChecksumFile(String contentFolder) {
-        var checksumPath = contentFolder + File.separator + Constants.CHECKSUM_FILE_NAME;
-        return new File(checksumPath);
+    private File getChecksumFile(String contentFolder) throws IOException {
+        var checksumFile = new File(contentFolder + File.separator + Constants.CHECKSUM_FILE_NAME);
+
+        if (!checksumFile.getParentFile().exists() && !checksumFile.getParentFile().mkdirs())
+            throw new RuntimeException("Could not create folder " + checksumFile.getParentFile().getAbsolutePath());
+        if (!checksumFile.exists() && !checksumFile.createNewFile())
+            throw new RuntimeException("Could not create file " + checksumFile.getAbsolutePath());
+        return checksumFile;
     }
 
     public boolean checksumExists(String contentFolder) throws IOException {
@@ -111,16 +116,8 @@ public class PassphraseHandler {
     }
 
     private void saveChecksumFile(String contentFolder, String content) throws IOException {
-        var checksumFile = getChecksumFile(contentFolder);
-
-        if (!checksumFile.getParentFile().exists() && !checksumFile.getParentFile().mkdirs())
-            throw new RuntimeException("Could not create folder " + checksumFile.getParentFile().getAbsolutePath());
-
-        if (!checksumFile.createNewFile())
-            throw new RuntimeException("Unable to create checksum file: " + checksumFile.getAbsolutePath());
-
-        var checksumWriter = new FileWriter(checksumFile);
-        checksumWriter.write(content);
+        var checksumWriter = new FileWriter(getChecksumFile(contentFolder));
+        checksumWriter.write(content + "\n");
         checksumWriter.close();
     }
 

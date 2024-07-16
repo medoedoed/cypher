@@ -12,6 +12,7 @@ import utils.contentCreators.ServiceSaver;
 import utils.data.Constants;
 import utils.data.ServiceData;
 import utils.handlers.ConfigHandler;
+import utils.handlers.CopyHandler;
 import utils.handlers.DirectoryHandler;
 import utils.handlers.PassphraseHandler;
 
@@ -55,6 +56,7 @@ public class SaveSubcommand implements Runnable {
     private final ServiceSaver serviceSaver = new ServiceSaver();
     private final PassphraseHandler passphraseHandler = new PassphraseHandler();
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
+    private final CopyHandler copyHandler = new CopyHandler();
 
     @Override
     public void run() {
@@ -69,7 +71,7 @@ public class SaveSubcommand implements Runnable {
         }
 
         var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-
+        var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
 
         System.out.println(contentFolder);
 
@@ -94,6 +96,15 @@ public class SaveSubcommand implements Runnable {
         }
 
         if (serviceData == null) return;
+
+        if (copyToClipboard) {
+            try {
+                copyHandler.copyToClipboard(serviceData.password(), copyUtility);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         if (hidePassword) serviceData = new ServiceData(serviceData.login(), "*****");
 
         System.out.println("Login: " + serviceData.login());

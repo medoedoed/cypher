@@ -1,5 +1,5 @@
 import picocli.CommandLine;
-import subcommands.ChangeSuperPasswordSubcommand;
+import subcommands.ChangePassphrase;
 import subcommands.InitSubcommand;
 import subcommands.SaveSubcommand;
 
@@ -7,7 +7,7 @@ import subcommands.SaveSubcommand;
         version = "Password manager 'pwm' 0.1",
         subcommands = {
                 InitSubcommand.class,
-                ChangeSuperPasswordSubcommand.class,
+                ChangePassphrase.class,
                 SaveSubcommand.class
         },
         mixinStandardHelpOptions = true)
