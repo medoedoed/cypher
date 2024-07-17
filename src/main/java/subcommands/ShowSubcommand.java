@@ -63,6 +63,14 @@ public class ShowSubcommand implements Runnable {
             throw new RuntimeException(e);
         }
 
+        if (copyToClipboard) {
+            try {
+                copyHandler.copyToClipboard(serviceData.password(), copyUtility);
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         System.out.println(serviceData);
     }
 }
