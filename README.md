@@ -1,7 +1,14 @@
-# pw-manager
+# cypher
 Password manager utility for linux
 
+### Installing:
 
+```
+$ git clone git@github.com:medoedoed/cypher.git
+$ cd cypher
+$ ./gradlew build
+
+```
 
 ## Функциональные требования:
 
@@ -94,6 +101,3 @@ Password manager utility for linux
 Пароли лежат в директории (по умолчанию ~/.passwords). В директории лежит текстовый файл с checksum (.checksum). Далее для каждого серивиса создается отдельный файл с названием соответсующего названию серивиса. В каждом из таком файлов лежит два хэша зашифрованных при помощи двустороннего шифрования - логин и пароль.
 
 TODO: добавить контроль доступа к файлам
-
-
-
