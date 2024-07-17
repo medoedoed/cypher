@@ -1,2 +1,2 @@
-rootProject.name = "pw-manager"
-includeBuild("/home/medo/projects/pw-manager")
+rootProject.name = "cypher"
+includeBuild("/home/medo/projects/cypher")
