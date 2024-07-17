@@ -36,9 +36,7 @@ public class Aes256Encryptor implements SymmetricAlgorithm {
 
     public String decrypt(String hash, String key) {
         try {
-            byte[] keyBytes = key.getBytes("UTF-8");
-            SecretKeySpec secretKey = new SecretKeySpec(keyBytes, "AES");
-
+            SecretKeySpec secretKey = generateSecretKey(key);
             Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
 

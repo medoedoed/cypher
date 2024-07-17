@@ -1,4 +1,4 @@
-package utils.readers;
+package utils.consoleReaders;
 
 import java.io.Console;
 

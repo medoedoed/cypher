@@ -2,9 +2,9 @@ package utils.handlers;
 
 import encryption.asymmetricAlgorithms.Sha256Encryptor;
 import utils.data.Constants;
-import utils.readers.ConsoleReader;
-import utils.readers.DefaultConsoleReader;
-import utils.readers.PasswordConsoleReader;
+import utils.consoleReaders.ConsoleReader;
+import utils.consoleReaders.DefaultConsoleReader;
+import utils.consoleReaders.PasswordConsoleReader;
 
 
 import java.io.*;
@@ -42,14 +42,7 @@ public class PassphraseHandler {
     }
 
     public void updatePassphrase(String contentFolder, boolean isVisible) throws IOException, NoSuchAlgorithmException {
-        if (!checksumExists(contentFolder)) {
-            if (new AgreementHandler().yesNoQuestion("Checksum file doesn't exists. Do you want to create it? (y/n): ")) {
-                saveChecksum(contentFolder, isVisible);
-                return;
-            }
-
-            return;
-        }
+        if (!checksumExists(contentFolder, isVisible)) return;
 
         if (!checkCurrentPassphrase(contentFolder, isVisible)) {
             throw new RuntimeException("Passphrase update failed.");
@@ -70,7 +63,7 @@ public class PassphraseHandler {
     }
 
     public void saveChecksum(String contentFolder, boolean isVisible) throws IOException, NoSuchAlgorithmException {
-        if (checksumExists(contentFolder)) {
+        if (checksumExists(contentFolder, isVisible)) {
             if (new AgreementHandler().yesNoQuestion("Checksum file already exists. Do you want to overwrite it? (y/n): ")) {
                 updatePassphrase(contentFolder, isVisible);
                 return;
@@ -103,11 +96,17 @@ public class PassphraseHandler {
         return checksumFile;
     }
 
-    public boolean checksumExists(String contentFolder) throws IOException {
+    public boolean checksumExists(String contentFolder, boolean isVisible) throws IOException, NoSuchAlgorithmException {
         var checksumFile = getChecksumFile(contentFolder);
         if (!checksumFile.exists()) return false;
-        var lines = Files.readAllLines(getChecksumFile(contentFolder).toPath());
-        return !lines.isEmpty();
+        if (!Files.readAllLines(getChecksumFile(contentFolder).toPath()).isEmpty()) return true;
+
+        if (new AgreementHandler().yesNoQuestion("Checksum file doesn't exists. Do you want to create it? (y/n): ")) {
+            saveChecksum(contentFolder, isVisible);
+            return false;
+        }
+
+        return true;
     }
 
     private ConsoleReader getReader(boolean isVisible) {
@@ -118,14 +117,6 @@ public class PassphraseHandler {
     private void saveChecksumFile(String contentFolder, String content) throws IOException {
         var checksumWriter = new FileWriter(getChecksumFile(contentFolder));
         checksumWriter.write(content + "\n");
-        checksumWriter.close();
-    }
-
-    private void updateChecksumFile(String contentFolder, String content) throws IOException {
-        var checksumFile = getChecksumFile(contentFolder);
-
-        var checksumWriter = new FileWriter(checksumFile + "\n", false);
-        checksumWriter.write(content);
         checksumWriter.close();
     }
 }

@@ -1,4 +1,4 @@
-package utils.contentCreators;
+package utils.serviceUtils;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -8,11 +8,7 @@ public class ServiceWriter {
     public void writeService(String body, String serviceName, String contentFolder) throws IOException {
         var serviceWriter = new FileWriter(getServiceFile(serviceName, contentFolder));
         serviceWriter.write(body);
-    }
-//  TODO: maybe remove updating:
-    public void updateService(String body, String serviceName, String contentFolder) throws IOException {
-        var serviceWriter = new FileWriter(getServiceFile(serviceName, contentFolder));
-        serviceWriter.write(body);
+        serviceWriter.close();
     }
 
     private File getServiceFile(String serviceName, String contentFolder) throws IOException {

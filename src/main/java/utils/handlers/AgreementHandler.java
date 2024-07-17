@@ -1,6 +1,6 @@
 package utils.handlers;
 
-import utils.readers.DefaultConsoleReader;
+import utils.consoleReaders.DefaultConsoleReader;
 
 public class AgreementHandler {
     public boolean yesNoQuestion(String question) {

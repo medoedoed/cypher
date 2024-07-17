@@ -8,7 +8,7 @@ import encryption.symmetricAlgorithms.SymmetricAlgorithm;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-import utils.contentCreators.ServiceSaver;
+import utils.serviceUtils.ServiceSaver;
 import utils.data.Constants;
 import utils.data.ServiceData;
 import utils.handlers.ConfigHandler;
@@ -36,20 +36,20 @@ public class SaveSubcommand implements Runnable {
     private int passwordLength;
 
     @Option(
-            names = {"-c", "--clipboard"},
+            names = {"-c", "--copy"},
             description = "Save password to clipboard.")
     private boolean copyToClipboard;
 
     @Option(names = {"-v", "--visible"}, description = "Show password when you enter it.", defaultValue = "false")
     private boolean isVisible;
 
-    @Option(names = {"-h", "--hide"}, description = "Hide password after saving service", defaultValue = "false")
+    @Option(names = {"-h", "--hide"}, description = "Hide password after saving service.", defaultValue = "false")
     private boolean hidePassword;
 
-    @Option(names = {"-s", "--special"}, description = "Use special characters", defaultValue = "false")
+    @Option(names = {"-s", "--special"}, description = "Use special characters.", defaultValue = "false")
     private boolean useSpecialCharacters;
 
-    @Parameters(index = "0", description = "Service name")
+    @Parameters(index = "0", description = "Service name.")
     private String serviceName;
 
     private final ConfigHandler configHandler = new ConfigHandler();
@@ -70,25 +70,15 @@ public class SaveSubcommand implements Runnable {
             throw new RuntimeException(e);
         }
 
+        ServiceData serviceData;
         var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
         var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
-
-        System.out.println(contentFolder);
-
 
         LocalPasswordGenerator passwordGenerator = null;
         if (generatePassword) passwordGenerator = new LocalPasswordGenerator(useSpecialCharacters, passwordLength);
 
-        ServiceData serviceData;
-
         try {
-            if (!passphraseHandler.checksumExists(contentFolder)) {
-                passphraseHandler.updatePassphrase(contentFolder, isVisible);
-            }
-
-            if (!passphraseHandler.checksumExists(contentFolder)) {
-                return;
-            }
+            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
 
             serviceData = serviceSaver.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
         } catch (IOException | NoSuchAlgorithmException e) {
@@ -107,7 +97,6 @@ public class SaveSubcommand implements Runnable {
 
         if (hidePassword) serviceData = new ServiceData(serviceData.login(), "*****");
 
-        System.out.println("Login: " + serviceData.login());
-        System.out.println("Password: " + serviceData.password());
+        System.out.println(serviceData);
     }
 }
