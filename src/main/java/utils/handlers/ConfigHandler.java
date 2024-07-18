@@ -10,9 +10,6 @@ import java.util.Map;
 
 
 public class ConfigHandler {
-    private final String configDirectory = System.getProperty("user.home") + "/.config/pwm/";
-    private final String configPath = configDirectory + "config.toml";
-
     private final String defaultConfigString =
             Constants.CONTENT_FOLDER_KEY + " = \"~/.passwords\"" + "\n" +
                     Constants.COPY_UTILITY_KEY + " = \"wl-copy\"" + "\n";
@@ -32,7 +29,7 @@ public class ConfigHandler {
     }
 
     public Toml getConfig() throws IOException {
-        var configFile = new File(configPath);
+        var configFile = new File(Constants.CONFIG_FILE_PATH);
         if (!configFile.exists()) return createDefaultConfig();
 
         StringBuilder tomlBuilder = new StringBuilder();
@@ -45,11 +42,11 @@ public class ConfigHandler {
     }
 
     public Toml createDefaultConfig() throws IOException {
-        var directory = new File(configDirectory);
+        var directory = new File(Constants.CONFIG_DIRECTORY_PATH);
         if (!directory.exists())
             if (!directory.mkdir()) throw new FileNotFoundException("Config directory could not be created");
 
-        File configFile = new File(configPath);
+        File configFile = new File(Constants.CONFIG_FILE_PATH);
         if (!configFile.createNewFile()) throw new FileNotFoundException("Config file could not be created");
 
         FileWriter writer = new FileWriter(configFile);
