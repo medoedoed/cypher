@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -jar lib/cypher.jar "$@"
+java -jar /usr/local/lib/cypher.jar "$@"

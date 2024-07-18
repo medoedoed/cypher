@@ -10,7 +10,7 @@ cp cypher /usr/local/bin/
 chmod +x /usr/local/bin/cypher
 
 # Copy the 'cypher.jar' file
-mkdir -p /usr/local/bin/lib
-cp build/libs/cypher.jar /usr/local/bin/lib/
+mkdir -p /usr/local/lib
+cp build/libs/cypher.jar /usr/local/lib/
 
 echo "Files copied successfully to /usr/local/bin."
