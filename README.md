@@ -1,4 +1,3 @@
-
 # cypher
 
 CLI password manager utility for linux.
@@ -6,7 +5,6 @@ CLI password manager utility for linux.
 ### Dependencies
 
 - jdk
--
 
 ### Installation
 
