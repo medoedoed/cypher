@@ -1,3 +1,4 @@
+
 # cypher
 
 CLI password manager utility for linux.
