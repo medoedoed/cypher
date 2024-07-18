@@ -5,11 +5,9 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-# Copy the 'cypher' file
 cp cypher /usr/local/bin/
 chmod +x /usr/local/bin/cypher
 
-# Copy the 'cypher.jar' file
 mkdir -p /usr/local/lib
 cp build/libs/cypher.jar /usr/local/lib/
 
