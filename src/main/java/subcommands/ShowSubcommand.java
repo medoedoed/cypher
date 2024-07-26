@@ -43,16 +43,17 @@ public class ShowSubcommand implements Runnable {
 
     @Override
     public void run() {
-        Toml config;
+        Toml config = null;
         SymmetricAlgorithm algorithm = new Aes256Encryptor();
 
         try {
             config = configHandler.getConfig();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println("Cannot get config: " + e.getMessage());
+            System.exit(1);
         }
 
-        ServiceData serviceData;
+        ServiceData serviceData = null;
         var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
         var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
 
@@ -60,14 +61,16 @@ public class ShowSubcommand implements Runnable {
             if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
             serviceData = serviceReader.readService(serviceName, contentFolder, isVisible, algorithm);
         } catch (IOException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            System.out.println("Can't read service: " + e.getMessage());
+            System.exit(1);
         }
 
         if (copyToClipboard) {
             try {
                 copyHandler.copyToClipboard(serviceData.password(), copyUtility);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                System.out.println("Can't copy to clipboard: " + e.getMessage());
+                System.exit(1);
             }
         }
 

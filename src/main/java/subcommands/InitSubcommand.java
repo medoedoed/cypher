@@ -20,17 +20,19 @@ public class InitSubcommand implements Runnable {
     @Option(names = {"-v", "--visible"}, description = "Show password when you enter it.", defaultValue = "false")
     private Boolean isVisible;
 
+    private final PassphraseHandler passphraseHandler = new PassphraseHandler();
+    private final ConfigHandler configHandler = new ConfigHandler();
+
     @Override
     public void run() {
         String contentFolder;
         Toml config = null;
 
         try {
-            config = new ConfigHandler().getConfig();
+            config = configHandler.getConfig();
         } catch (IOException e) {
-            throw new RuntimeException(e);
-//            System.err.println(e.getMessage());
-//            System.exit(1);
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
 
         if (directory != null && !directory.isEmpty()) {
@@ -40,11 +42,10 @@ public class InitSubcommand implements Runnable {
         }
 
         try {
-            new PassphraseHandler().saveChecksum(contentFolder, isVisible);
+            passphraseHandler.saveChecksum(contentFolder, isVisible);
         } catch (Exception e) {
-            throw new RuntimeException(e);
-//            System.err.println(e.getMessage());
-//            System.exit(1);
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
     }
 }

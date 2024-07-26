@@ -15,22 +15,25 @@ public class ChangePassphrase implements Runnable {
     @Option(names = {"-v", "--visible"}, description = "Show password when you enter.", defaultValue = "false")
     private Boolean isVisible;
 
+    private final PassphraseHandler passphraseHandler = new PassphraseHandler();
     @Override
     public void run() {
-        Toml config;
+        Toml config = null;
 
         try {
             config = new ConfigHandler().getConfig();
         } catch (IOException e) {
-            throw new RuntimeException("Cannot get config: " + e.getMessage());
+            System.err.println("Cannot get config: " + e.getMessage());
+            System.exit(1);
         }
 
         String contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
 
         try {
-            new PassphraseHandler().updatePassphrase(contentFolder, isVisible);
+            passphraseHandler.updatePassphrase(contentFolder, isVisible);
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            System.err.println("Cannot update password: " + e.getMessage());
+            System.exit(1);
         }
     }
 }
