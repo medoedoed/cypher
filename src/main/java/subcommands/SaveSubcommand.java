@@ -60,17 +60,18 @@ public class SaveSubcommand implements Runnable {
 
     @Override
     public void run() {
-        Toml config;
+        Toml config = null;
         SymmetricAlgorithm algorithm = new Aes256Encryptor();
         // TODO: add choosing of algorithm (in config)
 
         try {
             config = configHandler.getConfig();
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.err.println("Cannot get config: " + e.getMessage());
+            System.exit(1);
         }
 
-        ServiceData serviceData;
+        ServiceData serviceData = null;
         var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
         var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
 
@@ -82,7 +83,8 @@ public class SaveSubcommand implements Runnable {
 
             serviceData = serviceSaver.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
         } catch (IOException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+            System.out.println("Can't save service: " + e.getMessage());
+            System.exit(1);
         }
 
         if (serviceData == null) return;
@@ -91,7 +93,8 @@ public class SaveSubcommand implements Runnable {
             try {
                 copyHandler.copyToClipboard(serviceData.password(), copyUtility);
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                System.out.println("Can't copy to clipboard: " + e.getMessage());
+                System.exit(1);
             }
         }
 
@@ -100,3 +103,4 @@ public class SaveSubcommand implements Runnable {
         System.out.println(serviceData);
     }
 }
+

@@ -12,6 +12,7 @@ import java.nio.file.Files;
 import java.security.NoSuchAlgorithmException;
 
 public class PassphraseHandler {
+    private final AgreementHandler agreementHandler = new AgreementHandler();
 
     public boolean checkCurrentPassphrase(String checksumPath, boolean isVisible) throws IOException, NoSuchAlgorithmException {
         return getCurrentPassphrase(checksumPath, isVisible) != null;
@@ -42,15 +43,20 @@ public class PassphraseHandler {
     }
 
     public void updatePassphrase(String contentFolder, boolean isVisible) throws IOException, NoSuchAlgorithmException {
-        if (!checksumExists(contentFolder, isVisible)) return;
+        if (!checksumExists(contentFolder, isVisible)){
+            saveChecksum(contentFolder, isVisible);
+            return;
+        }
 
         if (!checkCurrentPassphrase(contentFolder, isVisible)) {
-            throw new RuntimeException("Passphrase update failed.");
+            throw new RuntimeException("Wrong passphrase!");
         }
 
         var reader = getReader(isVisible);
         String password = reader.readLine("Enter new passphrase: ");
+
         // TODO: add password handler (check for complexity)
+
         String checkingPassword = reader.readLine("Enter new passphrase again: ");
 
         if (!password.equals(checkingPassword)) {
@@ -64,7 +70,7 @@ public class PassphraseHandler {
 
     public void saveChecksum(String contentFolder, boolean isVisible) throws IOException, NoSuchAlgorithmException {
         if (checksumExists(contentFolder, isVisible)) {
-            if (new AgreementHandler().yesNoQuestion("Checksum file already exists. Do you want to overwrite it? (y/n): ")) {
+            if (agreementHandler.yesNoQuestion("Checksum file already exists. Do you want to overwrite it? (y/n): ")) {
                 updatePassphrase(contentFolder, isVisible);
                 return;
             }
@@ -99,14 +105,17 @@ public class PassphraseHandler {
     public boolean checksumExists(String contentFolder, boolean isVisible) throws IOException, NoSuchAlgorithmException {
         var checksumFile = getChecksumFile(contentFolder);
         if (!checksumFile.exists()) return false;
-        if (!Files.readAllLines(getChecksumFile(contentFolder).toPath()).isEmpty()) return true;
-
-        if (new AgreementHandler().yesNoQuestion("Checksum file doesn't exists. Do you want to create it? (y/n): ")) {
-            saveChecksum(contentFolder, isVisible);
-            return false;
-        }
-
-        return true;
+        var currentChecksum = new BufferedReader(new FileReader(checksumFile)).readLine();
+        if (currentChecksum == null) return false;
+        return currentChecksum.length() == 256;
+//        if (!Files.readAllLines(getChecksumFile(contentFolder).toPath()).isEmpty()) return true;
+//
+//        if (agreementHandler.yesNoQuestion("Checksum file doesn't exists. Do you want to create it? (y/n): ")) {
+//            saveChecksum(contentFolder, isVisible);
+//            return false;
+//        }
+//
+//        return true;
     }
 
     private ConsoleReader getReader(boolean isVisible) {
