@@ -1,4 +1,4 @@
-package utils.handlers;
+package handlers;
 
 import com.moandjiezana.toml.Toml;
 import com.moandjiezana.toml.TomlWriter;

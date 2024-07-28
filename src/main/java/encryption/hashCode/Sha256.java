@@ -1,10 +1,10 @@
-package encryption.asymmetricAlgorithms;
+package encryption.hashCode;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class Sha256Encryptor {
+public class Sha256 {
     public static String encrypt(String input) throws NoSuchAlgorithmException {
         byte[] encodedHash;
         MessageDigest digest = MessageDigest.getInstance("SHA-256");

@@ -1,4 +1,4 @@
-package utils.handlers;
+package handlers;
 
 import java.io.IOException;
 import java.io.OutputStream;

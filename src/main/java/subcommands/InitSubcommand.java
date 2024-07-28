@@ -3,9 +3,9 @@ package subcommands;
 import com.moandjiezana.toml.Toml;
 import picocli.CommandLine.*;
 import utils.data.Constants;
-import utils.handlers.PassphraseHandler;
-import utils.handlers.ConfigHandler;
-import utils.handlers.DirectoryHandler;
+import handlers.PassphraseHandler;
+import handlers.ConfigHandler;
+import handlers.DirectoryHandler;
 
 import java.io.IOException;
 

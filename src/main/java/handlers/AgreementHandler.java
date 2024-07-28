@@ -1,4 +1,4 @@
-package utils.handlers;
+package handlers;
 
 import utils.consoleReaders.DefaultConsoleReader;
 

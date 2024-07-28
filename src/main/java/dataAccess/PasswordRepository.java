@@ -1,5 +1,7 @@
 package dataAccess;
 
+import utils.data.ServiceData;
+
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -43,5 +45,21 @@ public class PasswordRepository {
         }
 
         return services;
+    }
+
+    public ServiceData getService(String serviceName) throws SQLException {
+        String query = "SELECT login, password FROM services WHERE service_name = ?";
+        String login = null;
+        String password = null;
+
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery(query)) {
+
+            login = resultSet.getString("login");
+            password = resultSet.getString("password");
+
+        }
+
+        return new ServiceData(login, password);
     }
 }
