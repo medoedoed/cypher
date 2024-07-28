@@ -3,13 +3,13 @@ package subcommands;
 import com.moandjiezana.toml.Toml;
 import picocli.CommandLine.*;
 import utils.data.Constants;
-import utils.handlers.PassphraseHandler;
-import utils.handlers.ConfigHandler;
-import utils.handlers.DirectoryHandler;
+import handlers.PassphraseHandler;
+import handlers.ConfigHandler;
+import handlers.DirectoryHandler;
 
 import java.io.IOException;
 
-@Command(name = "chp", description = "Change super password")
+@Command(name = "update", description = "Change super password")
 public class ChangePassphrase implements Runnable {
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     @Option(names = {"-v", "--visible"}, description = "Show password when you enter.", defaultValue = "false")

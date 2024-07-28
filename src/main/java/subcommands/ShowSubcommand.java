@@ -4,19 +4,16 @@ package subcommands;
 import com.moandjiezana.toml.Toml;
 import encryption.symmetricAlgorithms.Aes256Encryptor;
 import encryption.symmetricAlgorithms.SymmetricAlgorithm;
+import handlers.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import utils.data.Constants;
 import utils.data.ServiceData;
-import utils.handlers.ConfigHandler;
-import utils.handlers.CopyHandler;
-import utils.handlers.DirectoryHandler;
-import utils.handlers.PassphraseHandler;
-import utils.serviceUtils.ServiceReader;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 
 
 @Command(name = "show",
@@ -36,7 +33,7 @@ public class ShowSubcommand implements Runnable {
     private String serviceName;
 
     private final ConfigHandler configHandler = new ConfigHandler();
-    private final ServiceReader serviceReader = new ServiceReader();
+    private final ServiceHandler serviceHandler = new ServiceHandler();
     private final PassphraseHandler passphraseHandler = new PassphraseHandler();
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     private final CopyHandler copyHandler = new CopyHandler();
@@ -53,14 +50,15 @@ public class ShowSubcommand implements Runnable {
             System.exit(1);
         }
 
+
         ServiceData serviceData = null;
         var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
         var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
 
         try {
-            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
-            serviceData = serviceReader.readService(serviceName, contentFolder, isVisible, algorithm);
-        } catch (IOException | NoSuchAlgorithmException e) {
+//            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
+            serviceData = serviceHandler.getService(serviceName, contentFolder, isVisible, algorithm);
+        } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
             System.out.println("Can't read service: " + e.getMessage());
             System.exit(1);
         }

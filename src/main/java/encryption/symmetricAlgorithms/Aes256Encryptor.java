@@ -10,9 +10,9 @@ import java.util.Base64;
 public class Aes256Encryptor implements SymmetricAlgorithm {
     private static final String ALGORITHM = "AES";
     private static final String TRANSFORMATION = "AES/ECB/PKCS5Padding";
-    private static final int KEY_SIZE = 128; // можно использовать 192 или 256 бит
-    private static final int ITERATIONS = 65536; // рекомендуется минимум 1000, но большее число итераций делает ключ сильнее
-    private static final byte[] SALT = "12345678".getBytes();
+    private static final int KEY_SIZE = 128;
+    private static final int ITERATIONS = 65536;
+    private static final byte[] SALT = "cyphersalt".getBytes();
 
     public String encrypt(String password, String passphrase) {
         try {
