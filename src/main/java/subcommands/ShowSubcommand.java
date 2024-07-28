@@ -51,7 +51,6 @@ public class ShowSubcommand implements Runnable {
         }
 
 
-
         ServiceData serviceData = null;
         var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
         var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
