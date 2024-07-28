@@ -79,7 +79,7 @@ public class SaveSubcommand implements Runnable {
 //            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
 //
             serviceData = serviceHandler.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
-        } c atch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
+        } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
 
             System.out.println("Can't save service: " + e.getMessage());
             System.exit(1);
