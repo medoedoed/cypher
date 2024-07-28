@@ -6,6 +6,7 @@ Cypher is a command-line interface (CLI) password manager designed for Linux sys
 
 ## Key Features
 
+
 - Secure Storage: Safeguard your passwords and sensitive data with industry-standard encryption.
 - Easy Access: Quickly access and manage your credentials through a simple CLI interface.
  -  Password Generation: Generate strong, random passwords to enhance your security.
