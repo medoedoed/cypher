@@ -50,12 +50,14 @@ public class ShowSubcommand implements Runnable {
             System.exit(1);
         }
 
+
+
         ServiceData serviceData = null;
         var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
         var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
 
         try {
-            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
+//            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
             serviceData = serviceHandler.getService(serviceName, contentFolder, isVisible, algorithm);
         } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
             System.out.println("Can't read service: " + e.getMessage());

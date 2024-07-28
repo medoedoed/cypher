@@ -9,7 +9,7 @@ import handlers.DirectoryHandler;
 
 import java.io.IOException;
 
-@Command(name = "chp", description = "Change super password")
+@Command(name = "update", description = "Change super password")
 public class ChangePassphrase implements Runnable {
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     @Option(names = {"-v", "--visible"}, description = "Show password when you enter.", defaultValue = "false")

@@ -52,12 +52,19 @@ public class PasswordRepository {
         String login = null;
         String password = null;
 
-        try (Statement statement = connection.createStatement();
-             ResultSet resultSet = statement.executeQuery(query)) {
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, serviceName);
 
-            login = resultSet.getString("login");
-            password = resultSet.getString("password");
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    login = resultSet.getString("login");
+                    password = resultSet.getString("password");
+                }
+            }
+        }
 
+        if (login == null || password == null) {
+            return null;
         }
 
         return new ServiceData(login, password);

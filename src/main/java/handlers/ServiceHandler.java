@@ -24,13 +24,17 @@ public class ServiceHandler {
             boolean isVisible,
             LocalPasswordGenerator passwordGenerator,
             SymmetricAlgorithm algorithm) throws IOException, NoSuchAlgorithmException, SQLException, ClassNotFoundException {
-        if (passwordRepository != null)
+        if (passwordRepository == null)
             passwordRepository = new PasswordRepository(connectionProvider.connect(contentFolder));
+
+        if (serviceExists(serviceName)) throw new RuntimeException("Service " + serviceName + " already exists");
 
         ConsoleReader passwordReader;
         ConsoleReader loginReader = new DefaultConsoleReader();
         if (isVisible) passwordReader = new DefaultConsoleReader();
         else passwordReader = new PasswordConsoleReader();
+
+        String passphrase = passphraseHandler.getCurrentPassphrase(contentFolder, isVisible);
 
         String login = loginReader.readLine("Enter your login: ");
         String password;
@@ -40,11 +44,11 @@ public class ServiceHandler {
             password = passwordGenerator.generatePassword();
         }
 
-        String passphrase = passphraseHandler.getCurrentPassphrase(contentFolder, isVisible);
 
         String encryptedLogin = algorithm.encrypt(login, passphrase);
         String encryptedPassword = algorithm.encrypt(password, passphrase);
 
+        passwordRepository.createPasswordTable();
         passwordRepository.saveService(serviceName, encryptedLogin, encryptedPassword);
 
         return new ServiceData(login, password);
@@ -55,16 +59,24 @@ public class ServiceHandler {
             String contentFolder,
             boolean isVisible,
             SymmetricAlgorithm algorithm) throws IOException, NoSuchAlgorithmException, SQLException, ClassNotFoundException {
-        if (passwordRepository != null)
+        if (passwordRepository == null)
             passwordRepository = new PasswordRepository(connectionProvider.connect(contentFolder));
+
+        if (!serviceExists(serviceName)) throw new RuntimeException("Service " + serviceName + " doesn't exist");
 
         String passphrase = passphraseHandler.getCurrentPassphrase(contentFolder, isVisible);
 
         ServiceData encryptedServiceData = passwordRepository.getService(serviceName);
 
         String login = algorithm.decrypt(encryptedServiceData.login(), passphrase);
-        String password = algorithm.encrypt(encryptedServiceData.password(), passphrase);
+        String password = algorithm.decrypt(encryptedServiceData.password(), passphrase);
 
         return new ServiceData(login, password);
+    }
+
+
+    private boolean serviceExists(String serviceName) throws SQLException {
+        ServiceData serviceData = passwordRepository.getService(serviceName);
+        return serviceData != null;
     }
 }

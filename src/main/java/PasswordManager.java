@@ -1,5 +1,3 @@
-import dataAccess.ConnectionProvider;
-import dataAccess.PasswordRepository;
 import picocli.CommandLine;
 import subcommands.ChangePassphrase;
 import subcommands.InitSubcommand;
@@ -19,13 +17,15 @@ import java.sql.SQLException;
         mixinStandardHelpOptions = true)
 public class PasswordManager implements Runnable {
     public static void main(String[] args) throws SQLException, ClassNotFoundException {
-        String dbDir = System.getProperty("user.home") + "/.passwords";
-//        int exitCode = new CommandLine(new PasswordManager()).execute(args);
-        var rep = new PasswordRepository(new ConnectionProvider().connect(dbDir));
-        rep.createPasswordTable();
-        rep.saveService("service", "adqwdq", "dqdwqdqwd");
-        rep.getAllServices().stream().forEach(System.out::println);
-//        System.exit(exitCode);
+//        String dbDir = System.getProperty("user.home") + "/.passwords";
+//        var rep = new PasswordRepository(new ConnectionProvider().connect(dbDir));
+//        rep.createPasswordTable();
+//        rep.saveService("service", "adqwdq", "dqdwqdqwd");
+//        rep.getAllServices().stream().forEach(System.out::println);
+
+
+        int exitCode = new CommandLine(new PasswordManager()).execute(args);
+        System.exit(exitCode);
     }
 
     @Override
