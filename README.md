@@ -35,7 +35,7 @@ $ ./gradlew shadowjar
   4. Run the installation script (you may need root privileges):
 
 ```shell
-    # ./install.sh
+$ sudo ./install.sh
 ```
 ----
 #### Cypher is an open-source project. Contributions are welcome!
