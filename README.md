@@ -1,16 +1,41 @@
-# cypher
+#  Cypher
 
-CLI password manager utility for linux.
+Cypher is a command-line interface (CLI) password manager designed for Linux systems. It offers a secure and convenient way to store and manage your passwords and sensitive information, right from your terminal. With Cypher, you can generate strong passwords, organize your credentials, and protect your data with encryption—all while maintaining complete control over your information.
 
-### Dependencies
+-------
 
-- jdk
+## Key Features
 
-### Installation
 
-```
+- Secure Storage: Safeguard your passwords and sensitive data with industry-standard encryption.
+- Easy Access: Quickly access and manage your credentials through a simple CLI interface.
+ -  Password Generation: Generate strong, random passwords to enhance your security.
+ -   Organizational Tools: Categorize and organize your entries for easy retrieval.
+-----
+## Installation
+
+#### To install Cypher, follow these steps:
+
+1.    Clone the repository:
+
+   ``` shell
 $ git clone git@github.com:medoedoed/cypher.git
-$ cd cypher
-$ ./gradlew shadowjar
-$ ./install.sh 
 ```
+
+2. Navigate to the project directory:
+
+```shell
+$ cd cypher
+```
+3. Build the project using Gradle:
+
+```shell
+$ ./gradlew shadowjar
+```
+  4. Run the installation script (you may need root privileges):
+
+```shell
+    # ./install.sh
+```
+----
+#### Cypher is an open-source project. Contributions are welcome!
