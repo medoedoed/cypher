@@ -12,6 +12,7 @@ import utils.data.ServiceData;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class ServiceHandler {
     private final PassphraseHandler passphraseHandler = new PassphraseHandler();
@@ -74,6 +75,23 @@ public class ServiceHandler {
         return new ServiceData(login, password);
     }
 
+    public ArrayList<String> getAllServices(
+            String contentFolder,
+            SymmetricAlgorithm algorithm) throws IOException, NoSuchAlgorithmException, SQLException, ClassNotFoundException {
+        if (passwordRepository == null)
+            passwordRepository = new PasswordRepository(connectionProvider.connect(contentFolder));
+
+        return passwordRepository.getAllServices();
+    }
+
+    public void removeService(String serviceName, String contentFolder) throws IOException, NoSuchAlgorithmException, SQLException, ClassNotFoundException {
+        if (passwordRepository == null)
+            passwordRepository = new PasswordRepository(connectionProvider.connect(contentFolder));
+
+        if (!serviceExists(serviceName)) throw new RuntimeException("Service " + serviceName + " doesn't exist");
+
+        passwordRepository.removeService(serviceName);
+    }
 
     private boolean serviceExists(String serviceName) throws SQLException {
         ServiceData serviceData = passwordRepository.getService(serviceName);
