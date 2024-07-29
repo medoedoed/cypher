@@ -69,4 +69,12 @@ public class PasswordRepository {
 
         return new ServiceData(login, password);
     }
+
+    public void removeService(String serviceName) throws SQLException {
+        String query = "DELETE FROM services WHERE service_name = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, serviceName);
+            preparedStatement.executeUpdate();
+        }
+    }
 }

@@ -1,8 +1,5 @@
 import picocli.CommandLine;
-import subcommands.ChangePassphrase;
-import subcommands.InitSubcommand;
-import subcommands.SaveSubcommand;
-import subcommands.ShowSubcommand;
+import subcommands.*;
 
 import java.sql.SQLException;
 
@@ -13,6 +10,8 @@ import java.sql.SQLException;
                 ChangePassphrase.class,
                 SaveSubcommand.class,
                 ShowSubcommand.class,
+                ListSubcommand.class,
+                RemoveSubcommand.class,
         },
         mixinStandardHelpOptions = true)
 public class PasswordManager implements Runnable {

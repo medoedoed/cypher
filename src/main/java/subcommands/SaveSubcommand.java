@@ -20,7 +20,7 @@ import java.sql.SQLException;
 @Command(name = "save",
         description = "Save service.",
         mixinStandardHelpOptions = true)
-public class SaveSubcommand implements Runnable {
+public class SaveSubcommand extends Subcommand implements Runnable {
     @Option(
             names = {"-g", "--generate"},
             description = "Generate password.")
@@ -57,47 +57,49 @@ public class SaveSubcommand implements Runnable {
 
     @Override
     public void run() {
-        Toml config = null;
-        SymmetricAlgorithm algorithm = new Aes256Encryptor();
-        // TODO: add choosing of algorithm (in config)
-
-        try {
-            config = configHandler.getConfig();
-        } catch (IOException e) {
-            System.err.println("Cannot get config: " + e.getMessage());
-            System.exit(1);
-        }
-
-        ServiceData serviceData = null;
+        Toml config = getConfig(configHandler);
         var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
         var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
+        SymmetricAlgorithm algorithm = new Aes256Encryptor();
+        // TODO: add choosing of algorithm (in config)
 
         LocalPasswordGenerator passwordGenerator = null;
         if (generatePassword) passwordGenerator = new LocalPasswordGenerator(useSpecialCharacters, passwordLength);
 
-        try {
-//            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
-//
-            serviceData = serviceHandler.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
-        } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
-
-            System.out.println("Can't save service: " + e.getMessage());
-            System.exit(1);
-        }
-
+        ServiceData serviceData = execute(serviceName, contentFolder, copyUtility, isVisible, copyToClipboard, passwordGenerator, algorithm);
         if (serviceData == null) return;
 
-        if (copyToClipboard) {
-            try {
+        printOutoput(serviceData, hidePassword);
+    }
+
+    private ServiceData execute(
+            String serviceName,
+            String contentFolder,
+            String copyUtility,
+            boolean isVisible,
+            boolean copyToClipboard,
+            LocalPasswordGenerator passwordGenerator,
+            SymmetricAlgorithm algorithm
+    ) {
+        ServiceData serviceData;
+        try {
+//            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
+
+            serviceData = serviceHandler.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
+            if (serviceData == null) return null;
+            if (copyToClipboard)
                 copyHandler.copyToClipboard(serviceData.password(), copyUtility);
-            } catch (Exception e) {
-                System.out.println("Can't copy to clipboard: " + e.getMessage());
-                System.exit(1);
-            }
+        } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
+            throw new RuntimeException("Can't save service: " + e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Can't copy to clipboard: " + e.getMessage());
         }
 
-        if (hidePassword) serviceData = new ServiceData(serviceData.login(), "*****");
+        return serviceData;
+    }
 
+    private void printOutoput(ServiceData serviceData, boolean hidePassword) {
+        if (hidePassword) serviceData = new ServiceData(serviceData.login(), "*****");
         System.out.println(serviceData);
     }
 }

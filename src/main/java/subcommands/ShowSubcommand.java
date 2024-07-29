@@ -19,7 +19,7 @@ import java.sql.SQLException;
 @Command(name = "show",
         description = "Show service.",
         mixinStandardHelpOptions = true)
-public class ShowSubcommand implements Runnable {
+public class ShowSubcommand extends Subcommand implements Runnable {
     @Option(names = {"-c", "--copy"},
             description = "Copy password to clipboard).")
     private boolean copyToClipboard;
@@ -40,38 +40,39 @@ public class ShowSubcommand implements Runnable {
 
     @Override
     public void run() {
-        Toml config = null;
-        SymmetricAlgorithm algorithm = new Aes256Encryptor();
-
-        try {
-            config = configHandler.getConfig();
-        } catch (IOException e) {
-            System.err.println("Cannot get config: " + e.getMessage());
-            System.exit(1);
-        }
-
-
-        ServiceData serviceData = null;
+        Toml config = getConfig(configHandler);
         var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
         var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
+        SymmetricAlgorithm algorithm = new Aes256Encryptor();
 
+        ServiceData serviceData = execute(serviceName, contentFolder, copyUtility, isVisible, copyToClipboard, algorithm);
+        printOutput(serviceData);
+    }
+
+    private ServiceData execute(
+            String serviceName,
+            String contentFolder,
+            String copyUtility,
+            boolean isVisible,
+            boolean copyToClipboard,
+            SymmetricAlgorithm algorithm
+    ) {
+        ServiceData serviceData;
         try {
 //            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
             serviceData = serviceHandler.getService(serviceName, contentFolder, isVisible, algorithm);
-        } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
-            System.out.println("Can't read service: " + e.getMessage());
-            System.exit(1);
-        }
-
-        if (copyToClipboard) {
-            try {
+            if (copyToClipboard)
                 copyHandler.copyToClipboard(serviceData.password(), copyUtility);
-            } catch (Exception e) {
-                System.out.println("Can't copy to clipboard: " + e.getMessage());
-                System.exit(1);
-            }
+        } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
+            throw new RuntimeException("Can't read service: " + e.getMessage());
+        } catch (InterruptedException e) {
+            throw new RuntimeException("Can't copy to clipboard: " + e.getMessage());
         }
 
+        return serviceData;
+    }
+
+    private void printOutput(ServiceData serviceData) {
         System.out.println(serviceData);
     }
 }
