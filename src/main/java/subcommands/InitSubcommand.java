@@ -1,9 +1,8 @@
 package subcommands;
 
 import com.moandjiezana.toml.Toml;
-import picocli.CommandLine.*;
-import utils.data.Constants;
-import handlers.PassphraseHandler;
+import dataAccess.ConnectionProvider;
+import dataAccess.PasswordRepository;
 import handlers.ConfigHandler;
 import handlers.DirectoryHandler;
 
@@ -22,30 +21,25 @@ public class InitSubcommand implements Runnable {
 
     private final PassphraseHandler passphraseHandler = new PassphraseHandler();
     private final ConfigHandler configHandler = new ConfigHandler();
+    private final ConnectionProvider connectionProvider = new ConnectionProvider();
+    private final PasswordRepository passwordRepository = new PasswordRepository();
 
     @Override
     public void run() {
-        String contentFolder;
-        Toml config = null;
+        Toml config = getConfig(configHandler);
+        var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+        boolean isComplex = config.getLong(Constants.COMPLEX_PASSPHRASE_KEY) != 0;
+        execute(contentFolder, isComplex);
+    }
 
+    private void execute(String contentFolder, boolean isComplex) {
         try {
-            config = configHandler.getConfig();
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
-        }
+            passwordRepository.connect(connectionProvider.connect(contentFolder));
+            passwordRepository.createPasswordTable();
 
-        if (directory != null && !directory.isEmpty()) {
-            contentFolder = directoryHandler.getFullPath(directory);
-        } else {
-            contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        }
-
-        try {
-            passphraseHandler.saveChecksum(contentFolder, isVisible);
+            passphraseHandler.saveChecksum(contentFolder, isVisible, isComplex);
         } catch (Exception e) {
-            System.err.println(e.getMessage());
-            System.exit(1);
+            System.out.println(e.getMessage());
         }
     }
 }

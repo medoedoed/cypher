@@ -19,7 +19,7 @@ Cypher is a command-line interface (CLI) password manager designed for Linux sys
 1.    Clone the repository:
 
    ``` shell
-$ git clone git@github.com:medoedoed/cypher.git
+$ git clone https://github.com/medoedoed/cypher.git
 ```
 
 2. Navigate to the project directory:
