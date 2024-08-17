@@ -1,19 +1,18 @@
 package subcommands;
 
 import com.moandjiezana.toml.Toml;
-import dataAccess.ConnectionProvider;
-import dataAccess.PasswordRepository;
+import picocli.CommandLine.*;
+import utils.data.Constants;
+import handlers.PassphraseHandler;
 import handlers.ConfigHandler;
 import handlers.DirectoryHandler;
-import handlers.PassphraseHandler;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import utils.data.Constants;
+
+import java.io.IOException;
 
 @Command(name = "init",
         description = "Initialize utility.",
         mixinStandardHelpOptions = true)
-public class InitSubcommand extends Subcommand implements Runnable {
+public class InitSubcommand implements Runnable {
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     @Option(names = {"-d", "--directory"}, description = "Set directory to init utility.")
     private String directory;
@@ -23,25 +22,30 @@ public class InitSubcommand extends Subcommand implements Runnable {
 
     private final PassphraseHandler passphraseHandler = new PassphraseHandler();
     private final ConfigHandler configHandler = new ConfigHandler();
-    private final ConnectionProvider connectionProvider = new ConnectionProvider();
-    private final PasswordRepository passwordRepository = new PasswordRepository();
 
     @Override
     public void run() {
-        Toml config = getConfig(configHandler);
-        var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        boolean isComplex = config.getLong(Constants.COMPLEX_PASSPHRASE_KEY) != 0;
-        execute(contentFolder, isComplex);
-    }
+        String contentFolder;
+        Toml config = null;
 
-    private void execute(String contentFolder, boolean isComplex) {
         try {
-            passwordRepository.connect(connectionProvider.connect(contentFolder));
-            passwordRepository.createPasswordTable();
+            config = configHandler.getConfig();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
 
-            passphraseHandler.saveChecksum(contentFolder, isVisible, isComplex);
+        if (directory != null && !directory.isEmpty()) {
+            contentFolder = directoryHandler.getFullPath(directory);
+        } else {
+            contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+        }
+
+        try {
+            passphraseHandler.saveChecksum(contentFolder, isVisible);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
     }
 }
