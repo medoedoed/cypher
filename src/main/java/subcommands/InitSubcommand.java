@@ -5,15 +5,13 @@ import dataAccess.ConnectionProvider;
 import dataAccess.PasswordRepository;
 import handlers.ConfigHandler;
 import handlers.DirectoryHandler;
-import handlers.PassphraseHandler;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import utils.data.Constants;
+
+import java.io.IOException;
 
 @Command(name = "init",
         description = "Initialize utility.",
         mixinStandardHelpOptions = true)
-public class InitSubcommand extends Subcommand implements Runnable {
+public class InitSubcommand implements Runnable {
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     @Option(names = {"-d", "--directory"}, description = "Set directory to init utility.")
     private String directory;
