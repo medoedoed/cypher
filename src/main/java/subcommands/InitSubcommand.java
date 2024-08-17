@@ -1,6 +1,8 @@
 package subcommands;
 
 import com.moandjiezana.toml.Toml;
+import dataAccess.ConnectionProvider;
+import dataAccess.PasswordRepository;
 import handlers.ConfigHandler;
 import handlers.DirectoryHandler;
 import handlers.PassphraseHandler;
@@ -21,19 +23,25 @@ public class InitSubcommand extends Subcommand implements Runnable {
 
     private final PassphraseHandler passphraseHandler = new PassphraseHandler();
     private final ConfigHandler configHandler = new ConfigHandler();
+    private final ConnectionProvider connectionProvider = new ConnectionProvider();
+    private final PasswordRepository passwordRepository = new PasswordRepository();
 
     @Override
     public void run() {
         Toml config = getConfig(configHandler);
         var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        execute(contentFolder);
+        boolean isComplex = config.getLong(Constants.COMPLEX_PASSPHRASE_KEY) != 0;
+        execute(contentFolder, isComplex);
     }
 
-    private void execute(String contentFolder) {
+    private void execute(String contentFolder, boolean isComplex) {
         try {
-            passphraseHandler.saveChecksum(contentFolder, isVisible);
+            passwordRepository.connect(connectionProvider.connect(contentFolder));
+            passwordRepository.createPasswordTable();
+
+            passphraseHandler.saveChecksum(contentFolder, isVisible, isComplex);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 }

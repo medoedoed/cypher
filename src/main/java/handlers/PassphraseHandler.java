@@ -41,9 +41,9 @@ public class PassphraseHandler {
         return getCurrentPassphrase(checksumPath, isVisible, ++iteration);
     }
 
-    public void updatePassphrase(String contentFolder, boolean isVisible) throws IOException, NoSuchAlgorithmException {
-        if (!checksumExists(contentFolder, isVisible)){
-            saveChecksum(contentFolder, isVisible);
+    public void updatePassphrase(String contentFolder, boolean isVisible, boolean isComplex) throws IOException, NoSuchAlgorithmException {
+        if (!checksumExists(contentFolder)){
+            saveChecksum(contentFolder, isVisible, isComplex);
             return;
         }
 
@@ -54,7 +54,7 @@ public class PassphraseHandler {
         var reader = getReader(isVisible);
         String password = reader.readLine("Enter new passphrase: ");
 
-        // TODO: add password handler (check for complexity)
+        if (isComplex && isComplex(password)) throw new RuntimeException("You should to use more complex passphrase");
 
         String checkingPassword = reader.readLine("Enter new passphrase again: ");
 
@@ -67,10 +67,10 @@ public class PassphraseHandler {
         System.out.println("Passphrase updated successfully.");
     }
 
-    public void saveChecksum(String contentFolder, boolean isVisible) throws IOException, NoSuchAlgorithmException {
-        if (checksumExists(contentFolder, isVisible)) {
+    public void saveChecksum(String contentFolder, boolean isVisible, boolean isComplex) throws IOException, NoSuchAlgorithmException {
+        if (checksumExists(contentFolder)) {
             if (agreementHandler.yesNoQuestion("Checksum file already exists. Do you want to overwrite it? (y/n): ")) {
-                updatePassphrase(contentFolder, isVisible);
+                updatePassphrase(contentFolder, isVisible, isComplex);
                 return;
             }
 
@@ -80,7 +80,9 @@ public class PassphraseHandler {
         var reader = getReader(isVisible);
 
         String password = reader.readLine("Enter passphrase: ");
-        // TODO: add password handler (check for complexity)
+
+        if (isComplex && !isComplex(password)) throw new RuntimeException("You should use more complex passphrase");
+
         String checkingPassword = reader.readLine("Enter passphrase again: ");
 
         if (!password.equals(checkingPassword)) {
@@ -101,20 +103,12 @@ public class PassphraseHandler {
         return checksumFile;
     }
 
-    public boolean checksumExists(String contentFolder, boolean isVisible) throws IOException, NoSuchAlgorithmException {
+    public boolean checksumExists(String contentFolder) throws IOException {
         var checksumFile = getChecksumFile(contentFolder);
         if (!checksumFile.exists()) return false;
         var currentChecksum = new BufferedReader(new FileReader(checksumFile)).readLine();
         if (currentChecksum == null) return false;
         return currentChecksum.length() == 256;
-//        if (!Files.readAllLines(getChecksumFile(contentFolder).toPath()).isEmpty()) return true;
-//
-//        if (agreementHandler.yesNoQuestion("Checksum file doesn't exists. Do you want to create it? (y/n): ")) {
-//            saveChecksum(contentFolder, isVisible);
-//            return false;
-//        }
-//
-//        return true;
     }
 
     private ConsoleReader getReader(boolean isVisible) {
@@ -126,5 +120,9 @@ public class PassphraseHandler {
         var checksumWriter = new FileWriter(getChecksumFile(contentFolder));
         checksumWriter.write(content + "\n");
         checksumWriter.close();
+    }
+
+    private boolean isComplex(String passphrase) {
+        return passphrase.length() >= 16;
     }
 }

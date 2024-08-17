@@ -11,8 +11,9 @@ import java.util.Map;
 
 public class ConfigHandler {
     private final String defaultConfigString =
-            Constants.CONTENT_FOLDER_KEY + " = \"~/.passwords\"" + "\n" +
-                    Constants.COPY_UTILITY_KEY + " = \"wl-copy\"" + "\n";
+            Constants.CONTENT_FOLDER_KEY + " = \"~/.cypher\"" + "\n" +
+                    Constants.COPY_UTILITY_KEY + " = \"wl-copy\"" + "\n" +
+                    Constants.COMPLEX_PASSPHRASE_KEY + " = 1" + "\n";
 
     private Toml completeConfig(Toml currentConfig) {
         Map<String, Object> currentConfigMap = currentConfig.toMap();
