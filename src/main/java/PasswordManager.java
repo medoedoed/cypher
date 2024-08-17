@@ -2,7 +2,7 @@ import picocli.CommandLine;
 import subcommands.*;
 
 @CommandLine.Command(name = "cypher",
-        version = "0.2.2",
+        version = "0.4.0",
         subcommands = {
                 InitSubcommand.class,
                 UpdateSubcommand.class,
