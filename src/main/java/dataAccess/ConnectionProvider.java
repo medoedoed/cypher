@@ -10,6 +10,4 @@ public class ConnectionProvider {
         Class.forName("org.sqlite.JDBC");
         return DriverManager.getConnection("jdbc:sqlite:" + databaseDirectory + File.separator + "passwords.db");
     }
-
-
 }

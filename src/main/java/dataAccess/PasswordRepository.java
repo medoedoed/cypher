@@ -12,6 +12,12 @@ public class PasswordRepository {
         this.connection = connection;
     }
 
+    public PasswordRepository() {}
+
+    public void connect(Connection connection) {
+        this.connection = connection;
+    }
+
     public void createPasswordTable() throws SQLException {
         try (Statement statement = connection.createStatement()) {
             statement.execute("CREATE TABLE IF NOT EXISTS services (" +

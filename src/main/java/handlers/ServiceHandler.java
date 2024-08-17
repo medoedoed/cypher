@@ -63,7 +63,21 @@ public class ServiceHandler {
         if (passwordRepository == null)
             passwordRepository = new PasswordRepository(connectionProvider.connect(contentFolder));
 
-        if (!serviceExists(serviceName)) throw new RuntimeException("Service " + serviceName + " doesn't exist");
+        if (!serviceExists(serviceName)) {
+            if (serviceName.matches("\\d+")) {
+                var services = getAllServices(contentFolder);
+                int index = Integer.parseInt(serviceName);
+                if (index <= services.size() && index > 0) {
+                    serviceName = services.get(index - 1);
+                } else {
+                    throw new RuntimeException("Wrong service index: " + serviceName);
+                }
+            } else {
+                throw new RuntimeException("Wrong service index: " + serviceName);
+            }
+        } else {
+            throw new RuntimeException("Service " + serviceName + " doesn't exist");
+        }
 
         String passphrase = passphraseHandler.getCurrentPassphrase(contentFolder, isVisible);
 
@@ -76,8 +90,7 @@ public class ServiceHandler {
     }
 
     public ArrayList<String> getAllServices(
-            String contentFolder,
-            SymmetricAlgorithm algorithm) throws IOException, NoSuchAlgorithmException, SQLException, ClassNotFoundException {
+            String contentFolder) throws IOException, NoSuchAlgorithmException, SQLException, ClassNotFoundException {
         if (passwordRepository == null)
             passwordRepository = new PasswordRepository(connectionProvider.connect(contentFolder));
 

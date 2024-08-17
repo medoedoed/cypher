@@ -1,17 +1,18 @@
 package subcommands;
 
 import com.moandjiezana.toml.Toml;
+import picocli.CommandLine.*;
+import utils.data.Constants;
+import handlers.PassphraseHandler;
 import handlers.ConfigHandler;
 import handlers.DirectoryHandler;
-import handlers.PassphraseHandler;
-import picocli.CommandLine.Command;
-import picocli.CommandLine.Option;
-import utils.data.Constants;
+
+import java.io.IOException;
 
 @Command(name = "init",
         description = "Initialize utility.",
         mixinStandardHelpOptions = true)
-public class InitSubcommand extends Subcommand implements Runnable {
+public class InitSubcommand implements Runnable {
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     @Option(names = {"-d", "--directory"}, description = "Set directory to init utility.")
     private String directory;
@@ -24,16 +25,27 @@ public class InitSubcommand extends Subcommand implements Runnable {
 
     @Override
     public void run() {
-        Toml config = getConfig(configHandler);
-        var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        execute(contentFolder);
-    }
+        String contentFolder;
+        Toml config = null;
 
-    private void execute(String contentFolder) {
+        try {
+            config = configHandler.getConfig();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
+        }
+
+        if (directory != null && !directory.isEmpty()) {
+            contentFolder = directoryHandler.getFullPath(directory);
+        } else {
+            contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+        }
+
         try {
             passphraseHandler.saveChecksum(contentFolder, isVisible);
         } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+            System.err.println(e.getMessage());
+            System.exit(1);
         }
     }
 }

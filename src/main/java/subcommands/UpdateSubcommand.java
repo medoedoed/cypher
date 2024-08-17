@@ -9,7 +9,7 @@ import picocli.CommandLine.Option;
 import utils.data.Constants;
 
 @Command(name = "update", description = "Change super password")
-public class ChangePassphrase extends Subcommand implements Runnable {
+public class UpdateSubcommand extends Subcommand implements Runnable {
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     @Option(names = {"-v", "--visible"}, description = "Show password when you enter.", defaultValue = "false")
     private Boolean isVisible;
@@ -21,14 +21,16 @@ public class ChangePassphrase extends Subcommand implements Runnable {
     public void run() {
         Toml config = getConfig(configHandler);
         String contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        execute(contentFolder);
+        boolean isComplex = config.getLong(Constants.COMPLEX_PASSPHRASE_KEY) != 0;
+
+        execute(contentFolder, isComplex);
     }
 
-    protected void execute(String contentFolder) {
+    protected void execute(String contentFolder, boolean isComplex) {
         try {
-            passphraseHandler.updatePassphrase(contentFolder, isVisible);
+            passphraseHandler.updatePassphrase(contentFolder, isVisible, isComplex);
         } catch (Exception e) {
-            throw new RuntimeException("Cannot update password: " + e.getMessage());
+            System.out.println(e.getMessage());
         }
     }
 }

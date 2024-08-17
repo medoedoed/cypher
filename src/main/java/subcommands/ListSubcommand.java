@@ -3,13 +3,9 @@ package subcommands;
 import com.moandjiezana.toml.Toml;
 import encryption.symmetricAlgorithms.Aes256Encryptor;
 import encryption.symmetricAlgorithms.SymmetricAlgorithm;
-import handlers.*;
 import picocli.CommandLine;
 import utils.data.Constants;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 
@@ -33,9 +29,6 @@ public class ListSubcommand extends Subcommand implements Runnable {
     private ArrayList<String> execute(String contentFolder, SymmetricAlgorithm algorithm) {
         try {
 //            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
-            return serviceHandler.getAllServices(contentFolder, algorithm);
-        } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
-            throw new RuntimeException("Can't read service: " + e.getMessage());
         }
     }
 

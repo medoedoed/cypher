@@ -1,17 +1,11 @@
 package subcommands;
 
 import com.moandjiezana.toml.Toml;
-import encryption.symmetricAlgorithms.Aes256Encryptor;
-import encryption.symmetricAlgorithms.SymmetricAlgorithm;
 import handlers.ConfigHandler;
 import handlers.DirectoryHandler;
 import handlers.ServiceHandler;
 import picocli.CommandLine;
 import utils.data.Constants;
-
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 
 @CommandLine.Command(name = "remove",
         description = "Remove service.",
@@ -28,7 +22,6 @@ public class RemoveSubcommand extends Subcommand implements Runnable {
     public void run() {
         Toml config = getConfig(configHandler);
         var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        SymmetricAlgorithm algorithm = new Aes256Encryptor();
         execute(serviceName, contentFolder);
         printOutput();
     }
@@ -37,8 +30,8 @@ public class RemoveSubcommand extends Subcommand implements Runnable {
         try {
 //            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
             serviceHandler.removeService(serviceName, contentFolder);
-        } catch (IOException | NoSuchAlgorithmException | SQLException | ClassNotFoundException e) {
-            throw new RuntimeException("Can't read service: " + e.getMessage());
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
         }
     }
 
