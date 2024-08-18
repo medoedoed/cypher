@@ -1,50 +1,55 @@
 package subcommands;
 
+
 import com.moandjiezana.toml.Toml;
-import picocli.CommandLine.*;
+import dataAccess.ConnectionProvider;
+import dataAccess.PasswordRepository;
+import handlers.ConfigHandler;
+import handlers.DirectoryHandler;
+import handlers.PassphraseHandler;
+import picocli.CommandLine;
 import utils.data.Constants;
-import utils.handlers.PassphraseHandler;
-import utils.handlers.ConfigHandler;
-import utils.handlers.DirectoryHandler;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 
-@Command(name = "init",
+@CommandLine.Command(name = "init",
         description = "Initialize utility.",
         mixinStandardHelpOptions = true)
-public class InitSubcommand implements Runnable {
+public class InitSubcommand extends Subcommand {
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
-    @Option(names = {"-d", "--directory"}, description = "Set directory to init utility.")
+    @CommandLine.Option(names = {"-d", "--directory"}, description = "Set directory to init utility.")
     private String directory;
 
-    @Option(names = {"-v", "--visible"}, description = "Show password when you enter it.", defaultValue = "false")
+    @CommandLine.Option(names = {"-v", "--visible"}, description = "Show password when you enter it.", defaultValue = "false")
     private Boolean isVisible;
 
+    private final PassphraseHandler passphraseHandler = new PassphraseHandler();
+    private final ConfigHandler configHandler = new ConfigHandler();
+    private final ConnectionProvider connectionProvider = new ConnectionProvider();
+    private final PasswordRepository passwordRepository = new PasswordRepository();
+
+    private String contentFolder;
+    private boolean isComplex;
+
     @Override
-    public void run() {
-        String contentFolder;
-        Toml config = null;
+    void getDataFromConfig() {
+        Toml config = getConfig(configHandler);
+        contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+        isComplex = config.getLong(Constants.COMPLEX_PASSPHRASE_KEY) != 0;
+    }
 
-        try {
-            config = new ConfigHandler().getConfig();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-//            System.err.println(e.getMessage());
-//            System.exit(1);
-        }
+    @Override
+    void execute() throws SQLException, IOException, NoSuchAlgorithmException, ClassNotFoundException {
+        passwordRepository.connect(connectionProvider.connect(contentFolder));
+        passwordRepository.createPasswordTable();
+        passphraseHandler.saveChecksum(contentFolder, isVisible, isComplex);
+    }
 
-        if (directory != null && !directory.isEmpty()) {
-            contentFolder = directoryHandler.getFullPath(directory);
-        } else {
-            contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        }
 
-        try {
-            new PassphraseHandler().saveChecksum(contentFolder, isVisible);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-//            System.err.println(e.getMessage());
-//            System.exit(1);
-        }
+    @Override
+    void printOutput() {
+        System.out.println("Passphrase saved successfully.");
     }
 }

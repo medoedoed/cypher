@@ -5,25 +5,21 @@ import com.moandjiezana.toml.Toml;
 import encryption.LocalPasswordGenerator;
 import encryption.symmetricAlgorithms.Aes256Encryptor;
 import encryption.symmetricAlgorithms.SymmetricAlgorithm;
+import handlers.ConfigHandler;
+import handlers.CopyHandler;
+import handlers.DirectoryHandler;
+import handlers.ServiceHandler;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
-import utils.serviceUtils.ServiceSaver;
 import utils.data.Constants;
 import utils.data.ServiceData;
-import utils.handlers.ConfigHandler;
-import utils.handlers.CopyHandler;
-import utils.handlers.DirectoryHandler;
-import utils.handlers.PassphraseHandler;
-
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
 
 @Command(name = "save",
         description = "Save service.",
         mixinStandardHelpOptions = true)
-public class SaveSubcommand implements Runnable {
+public class SaveSubcommand extends Subcommand {
     @Option(
             names = {"-g", "--generate"},
             description = "Generate password.")
@@ -53,50 +49,36 @@ public class SaveSubcommand implements Runnable {
     private String serviceName;
 
     private final ConfigHandler configHandler = new ConfigHandler();
-    private final ServiceSaver serviceSaver = new ServiceSaver();
-    private final PassphraseHandler passphraseHandler = new PassphraseHandler();
+    private final ServiceHandler serviceHandler = new ServiceHandler();
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     private final CopyHandler copyHandler = new CopyHandler();
 
+    private String contentFolder;
+    private String copyUtility;
+    private LocalPasswordGenerator passwordGenerator = null;
+    private SymmetricAlgorithm algorithm = new Aes256Encryptor();
+    private ServiceData serviceData = null;
+
     @Override
-    public void run() {
-        Toml config;
-        SymmetricAlgorithm algorithm = new Aes256Encryptor();
-        // TODO: add choosing of algorithm (in config)
+    void getDataFromConfig() {
+        Toml config = getConfig(configHandler);
+        contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+        copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
+    }
 
-        try {
-            config = configHandler.getConfig();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-        ServiceData serviceData;
-        var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
-
-        LocalPasswordGenerator passwordGenerator = null;
+    @Override
+    void execute() throws Exception {
         if (generatePassword) passwordGenerator = new LocalPasswordGenerator(useSpecialCharacters, passwordLength);
-
-        try {
-            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
-
-            serviceData = serviceSaver.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
-        } catch (IOException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-
+        serviceData = serviceHandler.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
         if (serviceData == null) return;
+        if (copyToClipboard)
+            copyHandler.copyToClipboard(serviceData.password(), copyUtility);
+    }
 
-        if (copyToClipboard) {
-            try {
-                copyHandler.copyToClipboard(serviceData.password(), copyUtility);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-
+    @Override
+    void printOutput() {
         if (hidePassword) serviceData = new ServiceData(serviceData.login(), "*****");
-
         System.out.println(serviceData);
     }
 }
+

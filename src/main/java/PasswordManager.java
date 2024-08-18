@@ -1,25 +1,25 @@
 import picocli.CommandLine;
-import subcommands.ChangePassphrase;
-import subcommands.InitSubcommand;
-import subcommands.SaveSubcommand;
-import subcommands.ShowSubcommand;
+import subcommands.*;
 
-@CommandLine.Command(name = "PasswordManager",
-        version = "Password manager 'pwm' 0.1",
+@CommandLine.Command(name = "cypher",
+        version = "0.4.0",
         subcommands = {
                 InitSubcommand.class,
-                ChangePassphrase.class,
+                UpdateSubcommand.class,
                 SaveSubcommand.class,
                 ShowSubcommand.class,
+                ListSubcommand.class,
+                RemoveSubcommand.class,
         },
         mixinStandardHelpOptions = true)
 public class PasswordManager implements Runnable {
+
     public static void main(String[] args) {
-        int exitCode = new CommandLine(new PasswordManager()).execute(args);
-        System.exit(exitCode);
+        new CommandLine(new PasswordManager()).execute(args);
     }
 
     @Override
     public void run() {
+
     }
 }

@@ -4,25 +4,21 @@ package subcommands;
 import com.moandjiezana.toml.Toml;
 import encryption.symmetricAlgorithms.Aes256Encryptor;
 import encryption.symmetricAlgorithms.SymmetricAlgorithm;
+import handlers.ConfigHandler;
+import handlers.CopyHandler;
+import handlers.DirectoryHandler;
+import handlers.ServiceHandler;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 import utils.data.Constants;
 import utils.data.ServiceData;
-import utils.handlers.ConfigHandler;
-import utils.handlers.CopyHandler;
-import utils.handlers.DirectoryHandler;
-import utils.handlers.PassphraseHandler;
-import utils.serviceUtils.ServiceReader;
-
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 
 
 @Command(name = "show",
         description = "Show service.",
         mixinStandardHelpOptions = true)
-public class ShowSubcommand implements Runnable {
+public class ShowSubcommand extends Subcommand {
     @Option(names = {"-c", "--copy"},
             description = "Copy password to clipboard).")
     private boolean copyToClipboard;
@@ -32,45 +28,37 @@ public class ShowSubcommand implements Runnable {
             defaultValue = "false")
     private boolean isVisible;
 
-    @Parameters(index = "0", description = "Service name.")
+    @Parameters(index = "0", description = "Service name or index in list.")
     private String serviceName;
 
     private final ConfigHandler configHandler = new ConfigHandler();
-    private final ServiceReader serviceReader = new ServiceReader();
-    private final PassphraseHandler passphraseHandler = new PassphraseHandler();
+    private final ServiceHandler serviceHandler = new ServiceHandler();
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     private final CopyHandler copyHandler = new CopyHandler();
 
+    private String contentFolder;
+    String copyUtility;
+    SymmetricAlgorithm algorithm = new Aes256Encryptor();
+    private ServiceData serviceData = null;
+
     @Override
-    public void run() {
-        Toml config;
-        SymmetricAlgorithm algorithm = new Aes256Encryptor();
+    void getDataFromConfig() {
+        Toml config = getConfig(configHandler);
 
-        try {
-            config = configHandler.getConfig();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+        copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
+    }
 
-        ServiceData serviceData;
-        var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
+    @Override
+    void execute() throws Exception {
+        serviceData = serviceHandler.getService(serviceName, contentFolder, isVisible, algorithm);
+        if (copyToClipboard)
+            copyHandler.copyToClipboard(serviceData.password(), copyUtility);
+    }
 
-        try {
-            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
-            serviceData = serviceReader.readService(serviceName, contentFolder, isVisible, algorithm);
-        } catch (IOException | NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
-        }
-
-        if (copyToClipboard) {
-            try {
-                copyHandler.copyToClipboard(serviceData.password(), copyUtility);
-            } catch (Exception e) {
-                throw new RuntimeException(e);
-            }
-        }
-
+    @Override
+    void printOutput() {
+        if (serviceData == null) System.out.println("[ERROR]: Can't get service data");;
         System.out.println(serviceData);
     }
 }

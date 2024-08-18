@@ -15,6 +15,8 @@ dependencies {
     implementation("io.hotmoka:toml4j:0.7.3")
     implementation("info.picocli:picocli:4.7.6")
     implementation("org.passay:passay:1.6.4")
+    implementation("org.xerial:sqlite-jdbc:3.41.2.2")
+    implementation("info.picocli:picocli-shell-jline2:4.7.6")
 }
 
 tasks.jar {
@@ -32,7 +34,3 @@ tasks {
     }
 }
 
-
-tasks.test {
-    useJUnitPlatform()
-}
