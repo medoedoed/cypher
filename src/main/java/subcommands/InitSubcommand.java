@@ -1,22 +1,24 @@
 package subcommands;
 
+
 import com.moandjiezana.toml.Toml;
 import dataAccess.ConnectionProvider;
 import dataAccess.PasswordRepository;
 import handlers.ConfigHandler;
 import handlers.DirectoryHandler;
+import handlers.PassphraseHandler;
+import picocli.CommandLine;
+import utils.data.Constants;
 
-import java.io.IOException;
-
-@Command(name = "init",
+@CommandLine.Command(name = "init",
         description = "Initialize utility.",
         mixinStandardHelpOptions = true)
-public class InitSubcommand implements Runnable {
+public class InitSubcommand extends Subcommand implements Runnable {
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
-    @Option(names = {"-d", "--directory"}, description = "Set directory to init utility.")
+    @CommandLine.Option(names = {"-d", "--directory"}, description = "Set directory to init utility.")
     private String directory;
 
-    @Option(names = {"-v", "--visible"}, description = "Show password when you enter it.", defaultValue = "false")
+    @CommandLine.Option(names = {"-v", "--visible"}, description = "Show password when you enter it.", defaultValue = "false")
     private Boolean isVisible;
 
     private final PassphraseHandler passphraseHandler = new PassphraseHandler();
