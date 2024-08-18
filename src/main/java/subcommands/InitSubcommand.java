@@ -10,10 +10,14 @@ import handlers.PassphraseHandler;
 import picocli.CommandLine;
 import utils.data.Constants;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+
 @CommandLine.Command(name = "init",
         description = "Initialize utility.",
         mixinStandardHelpOptions = true)
-public class InitSubcommand extends Subcommand implements Runnable {
+public class InitSubcommand extends Subcommand {
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     @CommandLine.Option(names = {"-d", "--directory"}, description = "Set directory to init utility.")
     private String directory;
@@ -26,22 +30,26 @@ public class InitSubcommand extends Subcommand implements Runnable {
     private final ConnectionProvider connectionProvider = new ConnectionProvider();
     private final PasswordRepository passwordRepository = new PasswordRepository();
 
+    private String contentFolder;
+    private boolean isComplex;
+
     @Override
-    public void run() {
+    void getDataFromConfig() {
         Toml config = getConfig(configHandler);
-        var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        boolean isComplex = config.getLong(Constants.COMPLEX_PASSPHRASE_KEY) != 0;
-        execute(contentFolder, isComplex);
+        contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+        isComplex = config.getLong(Constants.COMPLEX_PASSPHRASE_KEY) != 0;
     }
 
-    private void execute(String contentFolder, boolean isComplex) {
-        try {
-            passwordRepository.connect(connectionProvider.connect(contentFolder));
-            passwordRepository.createPasswordTable();
+    @Override
+    void execute() throws SQLException, IOException, NoSuchAlgorithmException, ClassNotFoundException {
+        passwordRepository.connect(connectionProvider.connect(contentFolder));
+        passwordRepository.createPasswordTable();
+        passphraseHandler.saveChecksum(contentFolder, isVisible, isComplex);
+    }
 
-            passphraseHandler.saveChecksum(contentFolder, isVisible, isComplex);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+
+    @Override
+    void printOutput() {
+        System.out.println("Passphrase saved successfully.");
     }
 }

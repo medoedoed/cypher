@@ -13,6 +13,7 @@ import subcommands.*;
         },
         mixinStandardHelpOptions = true)
 public class PasswordManager implements Runnable {
+
     public static void main(String[] args) {
         new CommandLine(new PasswordManager()).execute(args);
     }

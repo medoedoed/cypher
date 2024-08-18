@@ -18,7 +18,7 @@ import utils.data.ServiceData;
 @Command(name = "show",
         description = "Show service.",
         mixinStandardHelpOptions = true)
-public class ShowSubcommand extends Subcommand implements Runnable {
+public class ShowSubcommand extends Subcommand {
     @Option(names = {"-c", "--copy"},
             description = "Copy password to clipboard).")
     private boolean copyToClipboard;
@@ -36,44 +36,29 @@ public class ShowSubcommand extends Subcommand implements Runnable {
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     private final CopyHandler copyHandler = new CopyHandler();
 
-    private static String contentFolder;
+    private String contentFolder;
+    String copyUtility;
+    SymmetricAlgorithm algorithm = new Aes256Encryptor();
+    private ServiceData serviceData = null;
 
     @Override
-    public void run() {
+    void getDataFromConfig() {
         Toml config = getConfig(configHandler);
-        var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
-        SymmetricAlgorithm algorithm = new Aes256Encryptor();
 
-        ServiceData serviceData = execute(serviceName, contentFolder, copyUtility, isVisible, copyToClipboard, algorithm);
-        if (serviceData == null) return;
-        printOutput(serviceData);
+        contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+        copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
     }
 
-    private ServiceData execute(
-            String serviceName,
-            String contentFolder,
-            String copyUtility,
-            boolean isVisible,
-            boolean copyToClipboard,
-            SymmetricAlgorithm algorithm
-    ) {
-        ServiceData serviceData;
-        try {
-//            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
-            serviceData = serviceHandler.getService(serviceName, contentFolder, isVisible, algorithm);
-            if (copyToClipboard)
-                copyHandler.copyToClipboard(serviceData.password(), copyUtility);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            return null;
-        }
-
-        return serviceData;
+    @Override
+    void execute() throws Exception {
+        serviceData = serviceHandler.getService(serviceName, contentFolder, isVisible, algorithm);
+        if (copyToClipboard)
+            copyHandler.copyToClipboard(serviceData.password(), copyUtility);
     }
 
-    private void printOutput(ServiceData serviceData) {
-        System.out.println("[login]:\t" + serviceData.login());
-        System.out.println("[password]:\t" + serviceData.password());
+    @Override
+    void printOutput() {
+        if (serviceData == null) System.out.println("[ERROR]: Can't get service data");;
+        System.out.println(serviceData);
     }
 }

@@ -19,7 +19,7 @@ import utils.data.ServiceData;
 @Command(name = "save",
         description = "Save service.",
         mixinStandardHelpOptions = true)
-public class SaveSubcommand extends Subcommand implements Runnable {
+public class SaveSubcommand extends Subcommand {
     @Option(
             names = {"-g", "--generate"},
             description = "Generate password.")
@@ -53,49 +53,30 @@ public class SaveSubcommand extends Subcommand implements Runnable {
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
     private final CopyHandler copyHandler = new CopyHandler();
 
+    private String contentFolder;
+    private String copyUtility;
+    private LocalPasswordGenerator passwordGenerator = null;
+    private SymmetricAlgorithm algorithm = new Aes256Encryptor();
+    private ServiceData serviceData = null;
+
     @Override
-    public void run() {
+    void getDataFromConfig() {
         Toml config = getConfig(configHandler);
-        var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        var copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
-        SymmetricAlgorithm algorithm = new Aes256Encryptor();
-        // TODO: add choosing of algorithm (in config)
+        contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
+        copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
+    }
 
-        LocalPasswordGenerator passwordGenerator = null;
+    @Override
+    void execute() throws Exception {
         if (generatePassword) passwordGenerator = new LocalPasswordGenerator(useSpecialCharacters, passwordLength);
-
-        ServiceData serviceData = execute(serviceName, contentFolder, copyUtility, isVisible, copyToClipboard, passwordGenerator, algorithm);
+        serviceData = serviceHandler.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
         if (serviceData == null) return;
-
-        printOutput(serviceData, hidePassword);
+        if (copyToClipboard)
+            copyHandler.copyToClipboard(serviceData.password(), copyUtility);
     }
 
-    private ServiceData execute(
-            String serviceName,
-            String contentFolder,
-            String copyUtility,
-            boolean isVisible,
-            boolean copyToClipboard,
-            LocalPasswordGenerator passwordGenerator,
-            SymmetricAlgorithm algorithm
-    ) {
-        ServiceData serviceData;
-        try {
-//            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
-
-            serviceData = serviceHandler.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
-            if (serviceData == null) return null;
-            if (copyToClipboard)
-                copyHandler.copyToClipboard(serviceData.password(), copyUtility);
-        } catch (Exception e) {
-            System.out.println("[ERROR]: " + e.getMessage());
-            return null;
-        }
-
-        return serviceData;
-    }
-
-    private void printOutput(ServiceData serviceData, boolean hidePassword) {
+    @Override
+    void printOutput() {
         if (hidePassword) serviceData = new ServiceData(serviceData.login(), "*****");
         System.out.println(serviceData);
     }

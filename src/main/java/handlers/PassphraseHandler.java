@@ -64,7 +64,6 @@ public class PassphraseHandler {
 
         // Maybe I'll add choosing of encrypting algorithm
         saveChecksumFile(contentFolder, Sha256.encrypt(password));
-        System.out.println("Passphrase updated successfully.");
     }
 
     public void saveChecksum(String contentFolder, boolean isVisible, boolean isComplex) throws IOException, NoSuchAlgorithmException {
@@ -90,7 +89,6 @@ public class PassphraseHandler {
         }
 
         saveChecksumFile(contentFolder, Sha256.encrypt(password));
-        System.out.println("Passphrase saved successfully.");
     }
 
     private File getChecksumFile(String contentFolder) throws IOException {

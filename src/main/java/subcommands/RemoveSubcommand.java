@@ -4,38 +4,37 @@ import com.moandjiezana.toml.Toml;
 import handlers.ConfigHandler;
 import handlers.DirectoryHandler;
 import handlers.ServiceHandler;
-import picocli.CommandLine;
+import picocli.CommandLine.Parameters;
+import picocli.CommandLine.Command;
 import utils.data.Constants;
 
-@CommandLine.Command(name = "remove",
+@Command(name = "remove",
         description = "Remove service.",
         mixinStandardHelpOptions = true)
-public class RemoveSubcommand extends Subcommand implements Runnable {
-    @CommandLine.Parameters(index = "0", description = "Service name.")
+public class RemoveSubcommand extends Subcommand {
+    @Parameters(index = "0", description = "Service name.")
     private String serviceName;
 
     private final ConfigHandler configHandler = new ConfigHandler();
     private final ServiceHandler serviceHandler = new ServiceHandler();
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
 
+    private String contentFolder;
+
     @Override
-    public void run() {
+    void getDataFromConfig() {
         Toml config = getConfig(configHandler);
-        var contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
-        execute(serviceName, contentFolder);
-        printOutput();
+        contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
     }
 
-    private void execute(String serviceName, String contentFolder) {
-        try {
-//            if (!passphraseHandler.checksumExists(contentFolder, isVisible)) return;
-            serviceHandler.removeService(serviceName, contentFolder);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-        }
+    @Override
+    void execute() throws Exception {
+        serviceHandler.removeService(serviceName, contentFolder);
+
     }
 
-    private void printOutput() {
+    @Override
+    void printOutput() {
         System.out.println("Service " + serviceName + " removed");
     }
 }
