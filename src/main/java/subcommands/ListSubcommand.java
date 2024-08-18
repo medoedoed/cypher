@@ -11,7 +11,6 @@ import utils.data.Constants;
 
 import java.util.ArrayList;
 
-
 @CommandLine.Command(name = "list",
         description = "Print list of all services",
         mixinStandardHelpOptions = true)
