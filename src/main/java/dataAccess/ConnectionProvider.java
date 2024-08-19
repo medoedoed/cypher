@@ -13,7 +13,7 @@ public class ConnectionProvider {
             if (!databaseDirectoryFile.mkdirs())
                 throw new RuntimeException("Can't create database directory: " + databaseDirectory);
         }
-        
+       
         return DriverManager.getConnection(
                 "jdbc:sqlite:" + databaseDirectory + File.separator + "passwords.db");
     }
