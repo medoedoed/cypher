@@ -26,7 +26,7 @@ public class PasswordRepository {
                     "login TEXT," +
                     "password TEXT)");
         } catch (Exception e) {
-            throw new RuntimeException("Can't gert connection to database. Try 'cypher init'.");
+            throw new RuntimeException("Can't get connection to database. Try 'cypher init'.");
         }
     }
 
@@ -38,7 +38,7 @@ public class PasswordRepository {
             statement.setString(3, password);
             statement.executeUpdate();
         } catch (Exception e) {
-            throw new RuntimeException("Can't gert connection to database. Try 'cypher init'.");
+            throw new RuntimeException("Can't get connection to database. Try 'cypher init'.");
         }
     }
 
@@ -53,7 +53,7 @@ public class PasswordRepository {
                 services.add(name);
             }
         } catch (Exception e) {
-            throw new RuntimeException("Can't gert connection to database. Try 'cypher init'.");
+            throw new RuntimeException("Can't get connection to database. Try 'cypher init'.");
         }
 
         return services;
@@ -74,14 +74,14 @@ public class PasswordRepository {
                 }
             }
         } catch (Exception e) {
-            throw new RuntimeException("Can't gert connection to database. Try 'cypher init'.");
+            throw new RuntimeException("Can't get connection to database. Try 'cypher init'.");
         }
 
         if (login == null || password == null) {
             return null;
         }
 
-        return new ServiceData(login, password);
+        return new ServiceData(serviceName, login, password);
     }
 
     public void removeService(String serviceName) throws SQLException {
@@ -90,7 +90,7 @@ public class PasswordRepository {
             preparedStatement.setString(1, serviceName);
             preparedStatement.executeUpdate();
         } catch (Exception e) {
-            throw new RuntimeException("Can't gert connection to database. Try 'cypher init'.");
+            throw new RuntimeException("Can't get connection to database. Try 'cypher init'.");
         }
     }
 }

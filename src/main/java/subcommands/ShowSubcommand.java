@@ -44,7 +44,6 @@ public class ShowSubcommand extends Subcommand {
     @Override
     void getDataFromConfig() {
         Toml config = getConfig(configHandler);
-
         contentFolder = directoryHandler.getFullPath(config.getString(Constants.CONTENT_FOLDER_KEY));
         copyUtility = config.getString(Constants.COPY_UTILITY_KEY);
     }
@@ -59,7 +58,6 @@ public class ShowSubcommand extends Subcommand {
     @Override
     void printOutput() {
         if (serviceData == null) System.out.println("[ERROR]: Can't get service data");
-        System.out.println("[service]:\t" + serviceName);
         System.out.println(serviceData);
     }
 }
