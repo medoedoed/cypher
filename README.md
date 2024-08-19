@@ -37,5 +37,12 @@ $ ./gradlew shadowjar
 ```shell
 $ sudo ./install.sh
 ```
+
 ----
+## Configuration
+
+#### You can find config file in ~/.config/cypher. t's a standard toml file.
+
+----
+
 #### Cypher is an open-source project. Contributions are welcome!
