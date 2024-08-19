@@ -18,6 +18,7 @@ public class PassphraseHandler {
     }
 
     public String getCurrentPassphrase(String checksumPath, boolean isVisible) throws IOException, NoSuchAlgorithmException {
+        checkChecksum(checksumPath);
         return getCurrentPassphrase(checksumPath, isVisible, 0);
     }
 
@@ -40,6 +41,7 @@ public class PassphraseHandler {
         if (iteration <= MAX_ITERATIONS - 2) System.out.println("Sorry, try again.");
         return getCurrentPassphrase(checksumPath, isVisible, ++iteration);
     }
+
 
     public void updatePassphrase(String contentFolder, boolean isVisible, boolean isComplex) throws IOException, NoSuchAlgorithmException {
         if (!checksumExists(contentFolder)){
@@ -95,9 +97,9 @@ public class PassphraseHandler {
         var checksumFile = new File(contentFolder + File.separator + Constants.CHECKSUM_FILE_NAME);
 
         if (!checksumFile.getParentFile().exists() && !checksumFile.getParentFile().mkdirs())
-            throw new RuntimeException("Could not create folder " + checksumFile.getParentFile().getAbsolutePath());
+            throw new RuntimeException("Can't create folder: " + checksumFile.getParentFile().getAbsolutePath());
         if (!checksumFile.exists() && !checksumFile.createNewFile())
-            throw new RuntimeException("Could not create file " + checksumFile.getAbsolutePath());
+            throw new RuntimeException("Can't not create file: " + checksumFile.getAbsolutePath());
         return checksumFile;
     }
 
@@ -107,6 +109,11 @@ public class PassphraseHandler {
         var currentChecksum = new BufferedReader(new FileReader(checksumFile)).readLine();
         if (currentChecksum == null) return false;
         return currentChecksum.length() == 256;
+    }
+
+    public void checkChecksum(String contentFolder) throws IOException {
+        if (!checksumExists(contentFolder))
+            throw new RuntimeException("Checksum file doesn't exist. Try 'cypher init'");
     }
 
     private ConsoleReader getReader(boolean isVisible) {
