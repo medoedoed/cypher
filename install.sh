@@ -5,6 +5,8 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+./gradlew shadowjar
+
 cp cypher /usr/local/bin/
 chmod +x /usr/local/bin/cypher
 

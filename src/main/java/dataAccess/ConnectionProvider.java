@@ -8,6 +8,8 @@ import java.sql.SQLException;
 public class ConnectionProvider {
     public Connection connect(String databaseDirectory) throws ClassNotFoundException, SQLException {
         Class.forName("org.sqlite.JDBC");
+        if (!new File(databaseDirectory).mkdir())
+            throw new RuntimeException("Can't create database directory: " + databaseDirectory);
         return DriverManager.getConnection("jdbc:sqlite:" + databaseDirectory + File.separator + "passwords.db");
     }
 }
