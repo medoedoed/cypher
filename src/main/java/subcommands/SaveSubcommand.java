@@ -80,7 +80,7 @@ public class SaveSubcommand extends Subcommand {
 
     @Override
     void printOutput() {
-        if (hidePassword) serviceData = new ServiceData(serviceData.login(), "*****");
+        if (hidePassword) serviceData = new ServiceData(serviceData.serviceName(), serviceData.login(), "*****");
         System.out.println(serviceData);
     }
 }

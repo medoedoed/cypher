@@ -25,6 +25,8 @@ public class PasswordRepository {
                     "service_name TEXT unique," +
                     "login TEXT," +
                     "password TEXT)");
+        } catch (Exception e) {
+            throw new RuntimeException("Can't get connection to database. Try 'cypher init'.");
         }
     }
 
@@ -35,6 +37,8 @@ public class PasswordRepository {
             statement.setString(2, login);
             statement.setString(3, password);
             statement.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Can't get connection to database. Try 'cypher init'.");
         }
     }
 
@@ -48,6 +52,8 @@ public class PasswordRepository {
                 String name = resultSet.getString("service_name");
                 services.add(name);
             }
+        } catch (Exception e) {
+            throw new RuntimeException("Can't get connection to database. Try 'cypher init'.");
         }
 
         return services;
@@ -67,13 +73,15 @@ public class PasswordRepository {
                     password = resultSet.getString("password");
                 }
             }
+        } catch (Exception e) {
+            throw new RuntimeException("Can't get connection to database. Try 'cypher init'.");
         }
 
         if (login == null || password == null) {
             return null;
         }
 
-        return new ServiceData(login, password);
+        return new ServiceData(serviceName, login, password);
     }
 
     public void removeService(String serviceName) throws SQLException {
@@ -81,6 +89,8 @@ public class PasswordRepository {
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, serviceName);
             preparedStatement.executeUpdate();
+        } catch (Exception e) {
+            throw new RuntimeException("Can't get connection to database. Try 'cypher init'.");
         }
     }
 }

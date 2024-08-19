@@ -52,7 +52,7 @@ public class ServiceHandler {
         passwordRepository.createPasswordTable();
         passwordRepository.saveService(serviceName, encryptedLogin, encryptedPassword);
 
-        return new ServiceData(login, password);
+        return new ServiceData(serviceName, login, password);
     }
 
     public ServiceData getService(
@@ -86,18 +86,18 @@ public class ServiceHandler {
         String login = algorithm.decrypt(encryptedServiceData.login(), passphrase);
         String password = algorithm.decrypt(encryptedServiceData.password(), passphrase);
 
-        return new ServiceData(login, password);
+        return new ServiceData(serviceName, login, password);
     }
 
     public ArrayList<String> getAllServices(
-            String contentFolder) throws IOException, NoSuchAlgorithmException, SQLException, ClassNotFoundException {
+            String contentFolder) throws SQLException, ClassNotFoundException {
         if (passwordRepository == null)
             passwordRepository = new PasswordRepository(connectionProvider.connect(contentFolder));
 
         return passwordRepository.getAllServices();
     }
 
-    public void removeService(String serviceName, String contentFolder) throws IOException, NoSuchAlgorithmException, SQLException, ClassNotFoundException {
+    public void removeService(String serviceName, String contentFolder) throws SQLException, ClassNotFoundException {
         if (passwordRepository == null)
             passwordRepository = new PasswordRepository(connectionProvider.connect(contentFolder));
 

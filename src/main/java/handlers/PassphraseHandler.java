@@ -112,7 +112,7 @@ public class PassphraseHandler {
 
     public void checkChecksum(String contentFolder) throws IOException {
         if (!checksumExists(contentFolder))
-            throw new RuntimeException("Checksum file doesn't exist. Try 'cypher init'");
+            throw new RuntimeException("Checksum file doesn't exist. Try 'cypher init'.");
     }
 
     private ConsoleReader getReader(boolean isVisible) {

@@ -1,7 +1,7 @@
 package utils.data;
 
-public record ServiceData(String login, String password) {
+public record ServiceData(String serviceName, String login, String password) {
     public String toString() {
-        return "[login]:\t" + login + "\n[Password]:\t" + password;
+        return "[service]:\t" + serviceName + "\nпше [login]:\t" + login + "\n[Password]:\t" + password;
     }
 }
