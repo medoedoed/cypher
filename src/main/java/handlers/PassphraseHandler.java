@@ -1,11 +1,10 @@
 package handlers;
 
 import encryption.hashCode.Sha256;
-import utils.data.Constants;
 import utils.consoleReaders.ConsoleReader;
 import utils.consoleReaders.DefaultConsoleReader;
 import utils.consoleReaders.PasswordConsoleReader;
-
+import utils.data.Constants;
 
 import java.io.*;
 import java.security.NoSuchAlgorithmException;
@@ -108,7 +107,7 @@ public class PassphraseHandler {
         if (!checksumFile.exists()) return false;
         var currentChecksum = new BufferedReader(new FileReader(checksumFile)).readLine();
         if (currentChecksum == null) return false;
-        return currentChecksum.length() == 256;
+        return !currentChecksum.isEmpty();
     }
 
     public void checkChecksum(String contentFolder) throws IOException {
