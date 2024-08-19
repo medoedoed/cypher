@@ -20,7 +20,7 @@ public class LocalPasswordGenerator {
 
     public void checkForComplexity() {
         if (passwordLength < 8) {
-            throw new IllegalArgumentException("Password length should be at least 8 characters for better security.");
+            throw new IllegalArgumentException("Password length should be at least 8 characters.");
         }
     }
 
