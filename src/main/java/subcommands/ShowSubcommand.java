@@ -58,7 +58,8 @@ public class ShowSubcommand extends Subcommand {
 
     @Override
     void printOutput() {
-        if (serviceData == null) System.out.println("[ERROR]: Can't get service data");;
+        if (serviceData == null) System.out.println("[ERROR]: Can't get service data");
+        System.out.println("[service]:\t" + serviceName);
         System.out.println(serviceData);
     }
 }

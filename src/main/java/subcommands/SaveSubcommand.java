@@ -68,7 +68,10 @@ public class SaveSubcommand extends Subcommand {
 
     @Override
     void execute() throws Exception {
-        if (generatePassword) passwordGenerator = new LocalPasswordGenerator(useSpecialCharacters, passwordLength);
+        if (generatePassword) {
+            passwordGenerator = new LocalPasswordGenerator(useSpecialCharacters, passwordLength);
+            passwordGenerator.checkForComplexity();
+        }
         serviceData = serviceHandler.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
         if (serviceData == null) return;
         if (copyToClipboard)
