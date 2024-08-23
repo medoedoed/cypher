@@ -63,19 +63,9 @@ public class ServiceHandler {
         if (passwordRepository == null)
             passwordRepository = new PasswordRepository(connectionProvider.connect(contentFolder));
 
+        serviceName = getServiceByIndex(serviceName, contentFolder);
+
         if (!serviceExists(serviceName)) {
-            if (serviceName.matches("\\d+")) {
-                var services = getAllServices(contentFolder);
-                int index = Integer.parseInt(serviceName);
-                if (index <= services.size() && index > 0) {
-                    serviceName = services.get(index - 1);
-                } else {
-                    throw new RuntimeException("Wrong service index: " + serviceName);
-                }
-            } else {
-                throw new RuntimeException("Wrong service index: " + serviceName);
-            }
-        } else {
             throw new RuntimeException("Service " + serviceName + " doesn't exist");
         }
 
@@ -87,6 +77,20 @@ public class ServiceHandler {
         String password = algorithm.decrypt(encryptedServiceData.password(), passphrase);
 
         return new ServiceData(serviceName, login, password);
+    }
+
+    private String getServiceByIndex(String serviceName, String contentFolder) throws SQLException, ClassNotFoundException {
+        if (serviceName.matches("\\d+")) {
+            var services = getAllServices(contentFolder);
+            int index = Integer.parseInt(serviceName);
+            if (index <= services.size() && index > 0) {
+                serviceName = services.get(index - 1);
+            } else if (!services.contains(serviceName)) {
+                throw new RuntimeException("Wrong service index: " + serviceName);
+            }
+        }
+
+        return serviceName;
     }
 
     public ArrayList<String> getAllServices(

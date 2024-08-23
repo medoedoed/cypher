@@ -1,6 +1,6 @@
 package handlers;
 
-import encryption.hashCode.Sha256;
+import encryption.asymmetricAlgorithms.Sha256Encryptor;
 import utils.consoleReaders.ConsoleReader;
 import utils.consoleReaders.DefaultConsoleReader;
 import utils.consoleReaders.PasswordConsoleReader;
@@ -32,7 +32,7 @@ public class PassphraseHandler {
         var reader = getReader(isVisible);
 
         String currentPassphrase = reader.readLine("Passphrase: ");
-        String currentPassphraseHash = Sha256.encrypt(currentPassphrase);
+        String currentPassphraseHash = Sha256Encryptor.encrypt(currentPassphrase);
 
         var currentChecksum = new BufferedReader(new FileReader(checksumFile)).readLine();
         if (currentChecksum.equals(currentPassphraseHash)) return currentPassphrase;
@@ -64,7 +64,7 @@ public class PassphraseHandler {
         }
 
         // Maybe I'll add choosing of encrypting algorithm
-        saveChecksumFile(contentFolder, Sha256.encrypt(password));
+        saveChecksumFile(contentFolder, Sha256Encryptor.encrypt(password));
     }
 
     public void saveChecksum(String contentFolder, boolean isVisible, boolean isComplex) throws IOException, NoSuchAlgorithmException {
@@ -89,7 +89,7 @@ public class PassphraseHandler {
             throw new RuntimeException("Passphrases don't match.");
         }
 
-        saveChecksumFile(contentFolder, Sha256.encrypt(password));
+        saveChecksumFile(contentFolder, Sha256Encryptor.encrypt(password));
     }
 
     private File getChecksumFile(String contentFolder) throws IOException {
