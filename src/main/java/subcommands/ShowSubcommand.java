@@ -4,10 +4,7 @@ package subcommands;
 import com.moandjiezana.toml.Toml;
 import encryption.symmetricAlgorithms.Aes256Encryptor;
 import encryption.symmetricAlgorithms.SymmetricAlgorithm;
-import handlers.ConfigHandler;
-import handlers.CopyHandler;
-import handlers.DirectoryHandler;
-import handlers.ServiceHandler;
+import handlers.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -34,6 +31,7 @@ public class ShowSubcommand extends Subcommand {
     private final ConfigHandler configHandler = new ConfigHandler();
     private final ServiceHandler serviceHandler = new ServiceHandler();
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
+    private final PassphraseHandler passphraseHandler = new PassphraseHandler();
     private final CopyHandler copyHandler = new CopyHandler();
 
     private String contentFolder;
@@ -50,7 +48,9 @@ public class ShowSubcommand extends Subcommand {
 
     @Override
     void execute() throws Exception {
-        serviceData = serviceHandler.getService(serviceName, contentFolder, isVisible, algorithm);
+        String passphrase = passphraseHandler.getCurrentPassphrase(contentFolder, isVisible);
+        serviceData = serviceHandler.getService(serviceName, contentFolder, passphrase, algorithm);
+
         if (copyToClipboard)
             copyHandler.copyToClipboard(serviceData.password(), copyUtility);
     }

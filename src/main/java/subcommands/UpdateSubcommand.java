@@ -29,7 +29,8 @@ public class UpdateSubcommand extends Subcommand {
 
     @Override
     void execute() throws Exception {
-        passphraseHandler.updatePassphrase(contentFolder, isVisible, isComplex);
+
+        String passphrase = passphraseHandler.updatePassphrase(contentFolder, isVisible, isComplex);
     }
 
     @Override

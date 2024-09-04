@@ -5,10 +5,7 @@ import com.moandjiezana.toml.Toml;
 import encryption.LocalPasswordGenerator;
 import encryption.symmetricAlgorithms.Aes256Encryptor;
 import encryption.symmetricAlgorithms.SymmetricAlgorithm;
-import handlers.ConfigHandler;
-import handlers.CopyHandler;
-import handlers.DirectoryHandler;
-import handlers.ServiceHandler;
+import handlers.*;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
@@ -51,6 +48,7 @@ public class SaveSubcommand extends Subcommand {
     private final ConfigHandler configHandler = new ConfigHandler();
     private final ServiceHandler serviceHandler = new ServiceHandler();
     private final DirectoryHandler directoryHandler = new DirectoryHandler();
+    private final PassphraseHandler passphraseHandler = new PassphraseHandler();
     private final CopyHandler copyHandler = new CopyHandler();
 
     private String contentFolder;
@@ -72,8 +70,12 @@ public class SaveSubcommand extends Subcommand {
             passwordGenerator = new LocalPasswordGenerator(useSpecialCharacters, passwordLength);
             passwordGenerator.checkForComplexity();
         }
-        serviceData = serviceHandler.saveService(serviceName, contentFolder, isVisible, passwordGenerator, algorithm);
+
+        String passphrase = passphraseHandler.getCurrentPassphrase(contentFolder, isVisible);
+        serviceData = serviceHandler.saveService(serviceName, contentFolder, passphrase, isVisible, passwordGenerator, algorithm);
+
         if (serviceData == null) return;
+
         if (copyToClipboard)
             copyHandler.copyToClipboard(serviceData.password(), copyUtility);
     }

@@ -42,14 +42,9 @@ public class PassphraseHandler {
     }
 
 
-    public void updatePassphrase(String contentFolder, boolean isVisible, boolean isComplex) throws IOException, NoSuchAlgorithmException {
+    public String updatePassphrase(String contentFolder, boolean isVisible, boolean isComplex) throws IOException, NoSuchAlgorithmException {
         if (!checksumExists(contentFolder)){
-            saveChecksum(contentFolder, isVisible, isComplex);
-            return;
-        }
-
-        if (!checkCurrentPassphrase(contentFolder, isVisible)) {
-            throw new RuntimeException("Wrong passphrase!");
+            return saveChecksum(contentFolder, isVisible, isComplex);
         }
 
         var reader = getReader(isVisible);
@@ -65,16 +60,17 @@ public class PassphraseHandler {
 
         // Maybe I'll add choosing of encrypting algorithm
         saveChecksumFile(contentFolder, Sha256Encryptor.encrypt(password));
+
+        return password;
     }
 
-    public void saveChecksum(String contentFolder, boolean isVisible, boolean isComplex) throws IOException, NoSuchAlgorithmException {
+    public String saveChecksum(String contentFolder, boolean isVisible, boolean isComplex) throws IOException, NoSuchAlgorithmException {
         if (checksumExists(contentFolder)) {
             if (agreementHandler.yesNoQuestion("Checksum file already exists. Do you want to overwrite it? (y/n): ")) {
-                updatePassphrase(contentFolder, isVisible, isComplex);
-                return;
+                return updatePassphrase(contentFolder, isVisible, isComplex);
             }
 
-            return;
+             return null;
         }
 
         var reader = getReader(isVisible);
@@ -90,6 +86,8 @@ public class PassphraseHandler {
         }
 
         saveChecksumFile(contentFolder, Sha256Encryptor.encrypt(password));
+
+        return password;
     }
 
     private File getChecksumFile(String contentFolder) throws IOException {
